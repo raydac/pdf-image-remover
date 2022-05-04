@@ -340,7 +340,7 @@ public class MainFrame extends javax.swing.JFrame {
         }
         try {
             final int counter = makeTransparentImage(this.document, pages, pairs);
-            this.saveRequired = counter != 0;
+            this.saveRequired |= counter != 0;
             this.updateTitle();
             JOptionPane.showMessageDialog(this, "Managed to find and hide " + counter + " image(s)", "Completed", JOptionPane.INFORMATION_MESSAGE);
         } catch (IOException ex) {
