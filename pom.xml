@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.mycompany.pdfobjectremover</groupId>
+    <artifactId>pdf-image-remover</artifactId>
+    <version>1.0-SNAPSHOT</version>
+
+    <name>pdf-image-remover</name>
+
+    <url>https://github.com/raydac/zxpoly</url>
+
+    <properties>
+        <app.name>pdf-image-remover-${project.version}</app.name>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
+    </properties>
+
+    <issueManagement>
+        <system>GitHub Issues</system>
+        <url>https://github.com/raydac/pdf-image-remover/issues</url>
+    </issueManagement>
+
+    <inceptionYear>2022</inceptionYear>
+
+    <developers>
+        <developer>
+            <id>raydac</id>
+            <name>Igor Maznitsa</name>
+            <email>rrg4400@gmail.com</email>
+            <url>http://www.igormaznitsa.com</url>
+            <timezone>+2</timezone>
+            <roles>
+                <role>author</role>
+            </roles>
+        </developer>
+    </developers>
+
+    <scm>
+        <url>https://github.com/raydac/pdf-image-remover</url>
+        <connection>scm:git:git://github.com/raydac/pdf-image-remover.git</connection>
+        <developerConnection>scm:git:git@github.com/raydac/pdf-image-remover.git</developerConnection>
+    </scm>
+
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.pdfbox</groupId>
+            <artifactId>pdfbox</artifactId>
+            <version>3.0.0-RC1</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
+
+    <profiles>
+        <profile>
+            <id>publish</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.akathist.maven.plugins.launch4j</groupId>
+                        <artifactId>launch4j-maven-plugin</artifactId>
+                        <version>2.1.2</version>
+                        <configuration>
+                            <headerType>gui</headerType>
+                            <outfile>${project.build.directory}/${app.name}.exe</outfile>
+                            <downloadUrl>https://bell-sw.com/pages/downloads/#/java-11-lts</downloadUrl>
+                            <classPath>
+                                <mainClass>com.igormaznitsa.pdfimgremover.Application</mainClass>
+                                <preCp>anything</preCp>
+                            </classPath>
+                            <icon>
+                                ${basedir}/src/main/resources/icon.ico
+                            </icon>
+                            <singleInstance>
+                                <mutexName>sciaretoeditor</mutexName>
+                            </singleInstance>
+                            <versionInfo>
+                                <fileVersion>1.0.0.0</fileVersion>
+                                <productVersion>1.0.0.0</productVersion>
+                                <txtFileVersion>${project.version}</txtFileVersion>
+                                <fileDescription>Pdf Image Remover</fileDescription>
+                                <copyright>2022 Igor Maznitsa</copyright>
+                                <txtProductVersion>${project.version}</txtProductVersion>
+                                <productName>${project.name}</productName>
+                                <companyName>igormaznitsa.com</companyName>
+                                <internalName>${project.name}</internalName>
+                                <originalFilename>${app.name}.exe</originalFilename>
+                            </versionInfo>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>l4j-pack</id>
+                                <phase>install</phase>
+                                <goals>
+                                    <goal>launch4j</goal>
+                                </goals>
+                                <configuration>
+                                    <outfile>${project.build.directory}${file.separator}${app.name}.exe</outfile>
+                                    <jre>
+                                        <minVersion>11</minVersion>
+                                        <opts>
+                                            <opt>-Xmx2G</opt>
+                                        </opts>
+                                    </jre>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>    
+        </profile>    
+    </profiles>    
+            
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                        <exclude>META-INF/LICENSE.txt</exclude>
+                                        <exclude>META-INF/NOTICE.txt</exclude>
+                                        <exclude>META-INF/MANIFEST.txt</exclude>
+                                        <exclude>META-INF/MANIFEST.MF</exclude>
+                                        <exclude>META-INF/DEPENDENCIES</exclude>
+                                        <exclude>META-INF/LICENSE</exclude>
+                                        <exclude>META-INF/NOTICE</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                            <minimizeJar>false</minimizeJar>
+                            <transformers>
+                                <transformer
+                                    implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <manifestEntries>
+                                        <Main-Class>com.igormaznitsa.pdfimgremover.Application</Main-Class>
+                                        <Url>https://github.com/raydac/pdf-image-remover</Url>
+                                    </manifestEntries>
+                                </transformer>
+                            </transformers>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>    
+    </build>    
+</project>
