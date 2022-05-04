@@ -23,7 +23,7 @@ public class ImageShow extends javax.swing.JPanel {
 
     public ImageShow(final PageTreeModel.PageItem item) {
         initComponents();
-        this.labelTop.setText(String.format("Image: %s, %dX%d", item.name, item.pdImage.getWidth(), item.pdImage.getHeight()));
+        this.labelTop.setText(String.format("Image: %s, %dx%d", item.name.getName(), item.pdImage.getWidth(), item.pdImage.getHeight()));
         try {
             final BufferedImage image = item.pdImage.getImage();
             this.mainScroll.setViewportView(new JLabel(new ImageIcon(image)));
