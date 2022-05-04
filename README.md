@@ -1,2 +1,3 @@
-# pdf-image-remover
-GUI tool to remove selected images in PDF
+# What is it?
+Small GUI utility written in pure-Java to hide selected images in PDF files.
+
