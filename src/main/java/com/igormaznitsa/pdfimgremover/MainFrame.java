@@ -1,5 +1,6 @@
 package com.igormaznitsa.pdfimgremover;
 
+import java.awt.Image;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
@@ -34,13 +35,18 @@ public class MainFrame extends javax.swing.JFrame {
 
     private boolean saveRequired = false;
 
+    private final Image applicationIcon; 
+    
     public MainFrame() {
         initComponents();
+        Image icon = null;
         try (final InputStream image = MainFrame.class.getResourceAsStream("/icon.png")) {
-            this.setIconImage(ImageIO.read(image));
+            icon = ImageIO.read(image);
+            this.setIconImage(icon);
         } catch (IOException ex) {
             ex.printStackTrace();
         }
+        this.applicationIcon = icon;
 
         this.setSize(640, 480);
         this.splitPane.setDividerLocation(300);
@@ -378,7 +384,7 @@ public class MainFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_menuEditMenuSelected
 
     private void menuHelpAboutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuHelpAboutActionPerformed
-        JOptionPane.showMessageDialog(this, "PDF image remover\nVersion: 1.0.0\nAuthor: Igor Maznitsa");
+        JOptionPane.showMessageDialog(this, "PDF image remover\nVersion: 1.0.0\nAuthor: Igor Maznitsa", "About", JOptionPane.PLAIN_MESSAGE, new ImageIcon(this.applicationIcon));
     }//GEN-LAST:event_menuHelpAboutActionPerformed
 
     private void menuFileMenuSelected(javax.swing.event.MenuEvent evt) {//GEN-FIRST:event_menuFileMenuSelected
