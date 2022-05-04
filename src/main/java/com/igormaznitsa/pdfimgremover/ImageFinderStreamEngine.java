@@ -30,8 +30,8 @@ import org.apache.pdfbox.pdmodel.graphics.form.PDFormXObject;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 
 public class ImageFinderStreamEngine extends PDFStreamEngine {
-    
-    public static class FoundImage implements Comparable<FoundImage>{
+
+    public static class FoundImage implements Comparable<FoundImage> {
 
         public final COSName name;
         public final PDImageXObject image;
@@ -76,5 +76,5 @@ public class ImageFinderStreamEngine extends PDFStreamEngine {
             super.processOperator(operator, operands);
         }
     }
-    
+
 }

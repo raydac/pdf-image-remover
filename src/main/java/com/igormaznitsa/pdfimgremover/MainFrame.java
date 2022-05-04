@@ -33,7 +33,6 @@ import java.util.stream.Stream;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.filechooser.FileFilter;
@@ -50,14 +49,14 @@ public class MainFrame extends javax.swing.JFrame {
 
     private boolean saveRequired = false;
 
-    private final Image applicationIcon; 
+    private final Image applicationIcon;
     private final ScalableImage scalableImage;
-    
+
     public MainFrame() {
         initComponents();
         this.scalableImage = new ScalableImage();
         this.mainScrollPane.setViewportView(this.scalableImage);
-        
+
         Image icon = null;
         try (final InputStream image = MainFrame.class.getResourceAsStream("/icon.png")) {
             icon = ImageIO.read(image);
@@ -408,8 +407,9 @@ public class MainFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_menuFileMenuSelected
 
     private void menuFileExitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuFileExitActionPerformed
-        for (final WindowListener l : this.getWindowListeners())
+        for (final WindowListener l : this.getWindowListeners()) {
             l.windowClosing(new WindowEvent(this, 1));
+        }
     }//GEN-LAST:event_menuFileExitActionPerformed
 
     private void pageTreeMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pageTreeMouseClicked

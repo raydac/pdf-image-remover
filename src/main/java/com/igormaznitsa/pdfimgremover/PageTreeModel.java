@@ -34,7 +34,7 @@ public class PageTreeModel implements TreeModel {
 
         public final COSName name;
         public final PDImageXObject pdImage;
-        
+
         private PageItem(COSName name, PDImageXObject pdImage) {
             this.name = name;
             this.pdImage = pdImage;
@@ -76,7 +76,7 @@ public class PageTreeModel implements TreeModel {
             try {
                 final Map<COSName, ImageFinderStreamEngine.FoundImage> images = new ImageFinderStreamEngine().findImages(page);
                 images.entrySet().stream().map(x -> x.getValue()).sorted().forEach(i -> {
-                   this.pageItems.add(new PageItem(i.name, i.image));
+                    this.pageItems.add(new PageItem(i.name, i.image));
                 });
             } catch (IOException ex) {
                 ex.printStackTrace();

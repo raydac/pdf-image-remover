@@ -18,8 +18,9 @@ package com.igormaznitsa.pdfimgremover;
 import java.awt.image.BufferedImage;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 
-public class ImageShow extends javax.swing.JPanel {
+public class ImageShow extends JPanel {
 
     public ImageShow(final PageTreeModel.PageItem item) {
         initComponents();
@@ -27,7 +28,7 @@ public class ImageShow extends javax.swing.JPanel {
         try {
             final BufferedImage image = item.pdImage.getImage();
             this.mainScroll.setViewportView(new JLabel(new ImageIcon(image)));
-        }catch(Exception ex){
+        } catch (Exception ex) {
             ex.printStackTrace();
             this.mainScroll.setViewportView(new JLabel("ERROR!!!"));
         }
@@ -46,7 +47,6 @@ public class ImageShow extends javax.swing.JPanel {
         add(labelTop, java.awt.BorderLayout.PAGE_START);
         add(mainScroll, java.awt.BorderLayout.CENTER);
     }// </editor-fold>//GEN-END:initComponents
-
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel labelTop;
