@@ -14,7 +14,11 @@
           <SubComponents>
             <MenuItem class="javax.swing.JMenuItem" name="menuFileOpen">
               <Properties>
+                <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
+                  <Image iconType="3" name="/icons/file_extension_pdf.png"/>
+                </Property>
                 <Property name="text" type="java.lang.String" value="Open"/>
+                <Property name="toolTipText" type="java.lang.String" value="Open PDF document"/>
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuFileOpenActionPerformed"/>
@@ -22,7 +26,11 @@
             </MenuItem>
             <MenuItem class="javax.swing.JMenuItem" name="menuFileSaveAs">
               <Properties>
+                <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
+                  <Image iconType="3" name="/icons/file_save_as.png"/>
+                </Property>
                 <Property name="text" type="java.lang.String" value="Save as..."/>
+                <Property name="toolTipText" type="java.lang.String" value="Save current state of PDF document as a file"/>
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuFileSaveAsActionPerformed"/>
@@ -35,7 +43,11 @@
                 <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
                   <KeyStroke key="Alt+F4"/>
                 </Property>
+                <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
+                  <Image iconType="3" name="/icons/door_in.png"/>
+                </Property>
                 <Property name="text" type="java.lang.String" value="Exit"/>
+                <Property name="toolTipText" type="java.lang.String" value="Close application"/>
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuFileExitActionPerformed"/>
@@ -53,7 +65,11 @@
           <SubComponents>
             <MenuItem class="javax.swing.JMenuItem" name="menuEditShowImage">
               <Properties>
+                <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
+                  <Image iconType="3" name="/icons/image.png"/>
+                </Property>
                 <Property name="text" type="java.lang.String" value="Show image"/>
+                <Property name="toolTipText" type="java.lang.String" value="Show the selected image through special dialog"/>
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuEditShowImageActionPerformed"/>
@@ -61,7 +77,11 @@
             </MenuItem>
             <MenuItem class="javax.swing.JMenuItem" name="menuEditReplaceByFile">
               <Properties>
-                <Property name="text" type="java.lang.String" value="Replace by image"/>
+                <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
+                  <Image iconType="3" name="/icons/table_replace.png"/>
+                </Property>
+                <Property name="text" type="java.lang.String" value="Replace by file"/>
+                <Property name="toolTipText" type="java.lang.String" value="Replace selected images by image loaded from file"/>
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuEditReplaceByFileActionPerformed"/>
@@ -69,7 +89,11 @@
             </MenuItem>
             <MenuItem class="javax.swing.JMenuItem" name="menuEditMakeTransparent">
               <Properties>
+                <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
+                  <Image iconType="3" name="/icons/emotion_ghost.png"/>
+                </Property>
                 <Property name="text" type="java.lang.String" value="Hide image(s)"/>
+                <Property name="toolTipText" type="java.lang.String" value="Replace selected images by fully transparent ones"/>
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuEditMakeTransparentActionPerformed"/>
@@ -80,10 +104,14 @@
         <Menu class="javax.swing.JMenu" name="menuHelp">
           <Properties>
             <Property name="text" type="java.lang.String" value="Help"/>
+            <Property name="toolTipText" type="java.lang.String" value="Show info about application"/>
           </Properties>
           <SubComponents>
             <MenuItem class="javax.swing.JMenuItem" name="menuHelpAbout">
               <Properties>
+                <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
+                  <Image iconType="3" name="/icons/information.png"/>
+                </Property>
                 <Property name="text" type="java.lang.String" value="About"/>
               </Properties>
               <Events>
@@ -131,7 +159,7 @@
           <Properties>
             <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
               <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
-                <TitledBorder title="Found images"/>
+                <TitledBorder title="Detected images on the page"/>
               </Border>
             </Property>
           </Properties>

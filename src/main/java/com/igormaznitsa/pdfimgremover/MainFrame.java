@@ -17,6 +17,9 @@ package com.igormaznitsa.pdfimgremover;
 
 import java.awt.Desktop;
 import java.awt.Image;
+import java.awt.KeyEventDispatcher;
+import java.awt.KeyboardFocusManager;
+import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
@@ -81,6 +84,65 @@ public class MainFrame extends javax.swing.JFrame {
 
     public MainFrame() {
         initComponents();
+        
+        var focusManager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
+        focusManager.addKeyEventDispatcher(new KeyEventDispatcher(){
+            @Override
+            public boolean dispatchKeyEvent(KeyEvent e) {
+                boolean result = false;
+                if (!e.isConsumed() && e.getModifiersEx() == 0){
+                    final boolean released = e.getID() == KeyEvent.KEY_RELEASED;
+                    switch (e.getKeyCode()) {
+                        case KeyEvent.VK_PAGE_DOWN:{
+                            if (released) {
+                                try {
+                                    spinnerPage.setValue(((SpinnerNumberModel) spinnerPage.getModel()).getNextValue());
+                                } catch (Exception ex) {
+                                    // ignore
+                                }
+                            }
+                            e.consume();
+                            result = true;
+                        }break;
+                        case KeyEvent.VK_END:{
+                            if (released && spinnerPage.isEnabled()) {
+                                try{
+                                spinnerPage.setValue(((SpinnerNumberModel)spinnerPage.getModel()).getMaximum());
+                                }catch(Exception ex){
+                                    // ignore
+                                }
+                            }
+                            e.consume();
+                            result = true;
+                        }break;
+                        case KeyEvent.VK_HOME:{
+                            if (released && spinnerPage.isEnabled()) {
+                                try{
+                                spinnerPage.setValue(((SpinnerNumberModel)spinnerPage.getModel()).getMinimum());
+                                }catch(Exception ex){
+                                    // ignore
+                                }
+                            }
+                            e.consume();
+                            result = true;
+                        }break;
+                        case KeyEvent.VK_PAGE_UP:{
+                            if (released) {
+                                try {
+                                    spinnerPage.setValue(((SpinnerNumberModel) spinnerPage.getModel()).getPreviousValue());
+                                } catch (Exception ex) {
+                                    // ignore
+                                }
+                            }
+                            e.consume();
+                            result = true;
+                        }break;
+                    }
+                }
+                return result;
+            }
+        });
+        
         this.pageTree.setCellRenderer(new PageTreeModel.PageImageRenderer());
         this.scalableImage = new ScalableImage();
         this.scaleStatusIndicator.setScalable(this.scalableImage);
@@ -149,7 +211,7 @@ public class MainFrame extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
 
-        scrollPanelTree.setBorder(javax.swing.BorderFactory.createTitledBorder("Found images"));
+        scrollPanelTree.setBorder(javax.swing.BorderFactory.createTitledBorder("Detected images on the page"));
 
         pageTree.setModel(null);
         pageTree.setRootVisible(false);
@@ -207,7 +269,9 @@ public class MainFrame extends javax.swing.JFrame {
             }
         });
 
+        menuFileOpen.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/file_extension_pdf.png"))); // NOI18N
         menuFileOpen.setText("Open");
+        menuFileOpen.setToolTipText("Open PDF document");
         menuFileOpen.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 menuFileOpenActionPerformed(evt);
@@ -215,7 +279,9 @@ public class MainFrame extends javax.swing.JFrame {
         });
         menuFile.add(menuFileOpen);
 
+        menuFileSaveAs.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/file_save_as.png"))); // NOI18N
         menuFileSaveAs.setText("Save as...");
+        menuFileSaveAs.setToolTipText("Save current state of PDF document as a file");
         menuFileSaveAs.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 menuFileSaveAsActionPerformed(evt);
@@ -225,7 +291,9 @@ public class MainFrame extends javax.swing.JFrame {
         menuFile.add(menuFileSeparator);
 
         menuFileExit.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F4, java.awt.event.InputEvent.ALT_DOWN_MASK));
+        menuFileExit.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/door_in.png"))); // NOI18N
         menuFileExit.setText("Exit");
+        menuFileExit.setToolTipText("Close application");
         menuFileExit.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 menuFileExitActionPerformed(evt);
@@ -246,7 +314,9 @@ public class MainFrame extends javax.swing.JFrame {
             }
         });
 
+        menuEditShowImage.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/image.png"))); // NOI18N
         menuEditShowImage.setText("Show image");
+        menuEditShowImage.setToolTipText("Show the selected image through special dialog");
         menuEditShowImage.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 menuEditShowImageActionPerformed(evt);
@@ -254,7 +324,9 @@ public class MainFrame extends javax.swing.JFrame {
         });
         menuEdit.add(menuEditShowImage);
 
-        menuEditReplaceByFile.setText("Replace by image");
+        menuEditReplaceByFile.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/table_replace.png"))); // NOI18N
+        menuEditReplaceByFile.setText("Replace by file");
+        menuEditReplaceByFile.setToolTipText("Replace selected images by image loaded from file");
         menuEditReplaceByFile.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 menuEditReplaceByFileActionPerformed(evt);
@@ -262,7 +334,9 @@ public class MainFrame extends javax.swing.JFrame {
         });
         menuEdit.add(menuEditReplaceByFile);
 
+        menuEditMakeTransparent.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/emotion_ghost.png"))); // NOI18N
         menuEditMakeTransparent.setText("Hide image(s)");
+        menuEditMakeTransparent.setToolTipText("Replace selected images by fully transparent ones");
         menuEditMakeTransparent.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 menuEditMakeTransparentActionPerformed(evt);
@@ -273,7 +347,9 @@ public class MainFrame extends javax.swing.JFrame {
         mainMenu.add(menuEdit);
 
         menuHelp.setText("Help");
+        menuHelp.setToolTipText("Show info about application");
 
+        menuHelpAbout.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/information.png"))); // NOI18N
         menuHelpAbout.setText("About");
         menuHelpAbout.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -457,9 +533,9 @@ public class MainFrame extends javax.swing.JFrame {
     private void menuHelpAboutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuHelpAboutActionPerformed
         final JHtmlLabel label = new JHtmlLabel("<html><b>PDF image remover</b><br><b>Version:</b> 1.0.0<br><b>Author:</b> Igor Maznitsa<br><a href=\"https://github.com/raydac/pdf-image-remover\">https://github.com/raydac/pdf-image-remover</a></html>");
         label.addLinkListener((JHtmlLabel source, String link) -> {
-            try{
+            try {
                 Desktop.getDesktop().browse(new URI(link));
-            }catch(Exception ex){
+            } catch (Exception ex) {
                 ex.printStackTrace();
             }
         });
@@ -514,7 +590,7 @@ public class MainFrame extends javax.swing.JFrame {
                 JOptionPane.showMessageDialog(this, "Can't load file: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
-            
+
             final int choose = JOptionPane.showConfirmDialog(this, "Find and replace for all document pages? (NO - only for the current one)", "Confirmation", JOptionPane.YES_NO_CANCEL_OPTION);
             if (choose == JOptionPane.CANCEL_OPTION) {
                 return;
