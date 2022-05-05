@@ -81,6 +81,7 @@ public class MainFrame extends javax.swing.JFrame {
 
     public MainFrame() {
         initComponents();
+        this.pageTree.setCellRenderer(new PageTreeModel.PageImageRenderer());
         this.scalableImage = new ScalableImage();
         this.mainScrollPane.setViewportView(this.scalableImage);
 

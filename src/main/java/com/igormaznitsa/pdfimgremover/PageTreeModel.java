@@ -4,7 +4,7 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -15,12 +15,22 @@
  */
 package com.igormaznitsa.pdfimgremover;
 
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.RenderingHints;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
+import javax.swing.JTree;
 import javax.swing.event.TreeModelListener;
+import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 import org.apache.pdfbox.cos.COSName;
@@ -30,14 +40,49 @@ import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 
 public class PageTreeModel implements TreeModel {
 
+    public static class PageImageRenderer extends DefaultTreeCellRenderer {
+
+        public PageImageRenderer() {
+            super();
+        }
+
+        @Override
+        public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel, boolean expanded, boolean leaf, int row, boolean hasFocus) {
+            final Component result = super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
+            if (value instanceof PageItem && result instanceof JLabel) {
+                ((JLabel)result).setIcon(new ImageIcon(((PageItem)value).icon));
+            }
+            return result;
+        }
+    }
+    
     public static class PageItem {
 
         public final COSName name;
         public final PDImageXObject pdImage;
+        public final Image icon;
 
         private PageItem(COSName name, PDImageXObject pdImage) {
             this.name = name;
             this.pdImage = pdImage;
+            this.icon = makeIcon(16, 16, this.pdImage);
+        }
+
+        private static Image makeIcon(final int width, final int height, final PDImageXObject pdImage) {
+            final BufferedImage icon = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+            final Graphics2D g = icon.createGraphics();
+            try {
+                g.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
+                g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+                g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g.drawImage(pdImage.getImage(), 0, 0, width, height, null);
+            } catch (Exception ex) {
+                g.setColor(Color.RED);
+                g.fillRect(0, 0, width, height);
+            } finally {
+                g.dispose();
+            }
+            return icon;
         }
 
         private boolean isLeaf() {
