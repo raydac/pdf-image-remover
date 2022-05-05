@@ -390,6 +390,10 @@ public class MainFrame extends javax.swing.JFrame {
     }
 
     private void menuFileOpenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuFileOpenActionPerformed
+        if (this.saveRequired && JOptionPane.showConfirmDialog(this, "You have unsaved result, open new file?", "Unsaved result", JOptionPane.OK_CANCEL_OPTION) == JOptionPane.CANCEL_OPTION) {
+            return;
+        }
+
         final JFileChooser fileOpenDialog = new JFileChooser(this.lastOpenedFile);
         fileOpenDialog.setFileFilter(FILEFILTER_PDF);
         fileOpenDialog.setFileSelectionMode(JFileChooser.FILES_ONLY);
@@ -409,6 +413,7 @@ public class MainFrame extends javax.swing.JFrame {
                 this.spinnerPage.setEnabled(true);
                 this.labelPageNumber.setText("/ " + document.getNumberOfPages());
                 this.documentFile = this.lastOpenedFile;
+                this.saveRequired = false;
                 this.updateTitle();
             } catch (IOException ex) {
                 JOptionPane.showMessageDialog(this, "Can't load file for error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
