@@ -51,6 +51,31 @@ public class MainFrame extends javax.swing.JFrame {
 
     private final Image applicationIcon;
     private final ScalableImage scalableImage;
+    private File lastImportedImageFile;
+
+    public static final FileFilter FILEFILTER_PDF = new FileFilter() {
+        @Override
+        public boolean accept(File file) {
+            return file.isDirectory() || file.getName().toLowerCase(Locale.ENGLISH).endsWith(".pdf");
+        }
+
+        @Override
+        public String getDescription() {
+            return "PDF documents (*.pdf)";
+        }
+    };
+
+    public static final FileFilter FILEFILTER_PNG = new FileFilter() {
+        @Override
+        public boolean accept(File file) {
+            return file.isDirectory() || file.getName().toLowerCase(Locale.ENGLISH).endsWith(".png");
+        }
+
+        @Override
+        public String getDescription() {
+            return "PNG image (*.png)";
+        }
+    };
 
     public MainFrame() {
         initComponents();
@@ -110,6 +135,7 @@ public class MainFrame extends javax.swing.JFrame {
         menuFileExit = new javax.swing.JMenuItem();
         menuEdit = new javax.swing.JMenu();
         menuEditShowImage = new javax.swing.JMenuItem();
+        menuEditReplaceByFile = new javax.swing.JMenuItem();
         menuEditMakeTransparent = new javax.swing.JMenuItem();
         menuHelp = new javax.swing.JMenu();
         menuHelpAbout = new javax.swing.JMenuItem();
@@ -206,6 +232,14 @@ public class MainFrame extends javax.swing.JFrame {
         });
         menuEdit.add(menuEditShowImage);
 
+        menuEditReplaceByFile.setText("Replace by image");
+        menuEditReplaceByFile.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                menuEditReplaceByFileActionPerformed(evt);
+            }
+        });
+        menuEdit.add(menuEditReplaceByFile);
+
         menuEditMakeTransparent.setText("Hide image(s)");
         menuEditMakeTransparent.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -257,21 +291,11 @@ public class MainFrame extends javax.swing.JFrame {
         }
     }
 
-    private final FileFilter fileFilterPdf = new FileFilter() {
-        @Override
-        public boolean accept(File file) {
-            return file.isDirectory() || file.getName().toLowerCase(Locale.ENGLISH).endsWith(".pdf");
-        }
-
-        @Override
-        public String getDescription() {
-            return "PDF documents (*.pdf)";
-        }
-    };
-
     private void menuFileOpenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuFileOpenActionPerformed
         final JFileChooser fileOpenDialog = new JFileChooser(this.lastOpenedFile);
-        fileOpenDialog.setFileFilter(fileFilterPdf);
+        fileOpenDialog.setFileFilter(FILEFILTER_PDF);
+        fileOpenDialog.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        fileOpenDialog.setMultiSelectionEnabled(false);
         fileOpenDialog.setDialogTitle("Open PDF document");
 
         if (fileOpenDialog.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
@@ -303,22 +327,22 @@ public class MainFrame extends javax.swing.JFrame {
 
         private final COSName name;
         private final PDImageXObject image;
-        private PDImageXObject transparentImage;
+        private PDImageXObject targetImage;
 
         ImageNamePair(final COSName name, final PDImageXObject image) {
             this.name = name;
             this.image = image;
-            this.transparentImage = null;
+            this.targetImage = null;
         }
     }
 
-    private int makeTransparentImage(final PDDocument document, final List<Integer> pageIndexes, final List<ImageNamePair> images) throws IOException {
+    private int replaceImage(final PDDocument document, final List<Integer> pageIndexes, final List<ImageNamePair> images, final BufferedImage image) throws IOException {
         final ImageFinderStreamEngine finder = new ImageFinderStreamEngine();
 
         int counter = 0;
 
         for (final ImageNamePair p : images) {
-            p.transparentImage = LosslessFactory.createFromImage(document, new BufferedImage(p.image.getWidth(), p.image.getHeight(), BufferedImage.TYPE_INT_ARGB));
+            p.targetImage = LosslessFactory.createFromImage(document, image == null ? new BufferedImage(p.image.getWidth(), p.image.getHeight(), BufferedImage.TYPE_INT_ARGB) : image);
         }
 
         for (final Integer pageIndex : pageIndexes) {
@@ -327,7 +351,7 @@ public class MainFrame extends javax.swing.JFrame {
             for (final ImageNamePair pair : images) {
                 var foundImageOnPage = foundImages.get(pair.name);
                 if (foundImageOnPage != null && foundImageOnPage.image.getWidth() == pair.image.getWidth() && foundImageOnPage.image.getHeight() == pair.image.getHeight()) {
-                    foundImageOnPage.resources.put(pair.name, pair.transparentImage);
+                    foundImageOnPage.resources.put(pair.name, pair.targetImage);
                     counter++;
                 }
             }
@@ -360,7 +384,7 @@ public class MainFrame extends javax.swing.JFrame {
             }
         }
         try {
-            final int counter = makeTransparentImage(this.document, pages, pairs);
+            final int counter = replaceImage(this.document, pages, pairs, null);
             this.saveRequired |= counter != 0;
             this.updateTitle();
             JOptionPane.showMessageDialog(this, "Managed to find and hide " + counter + " image(s)", "Completed", JOptionPane.INFORMATION_MESSAGE);
@@ -372,17 +396,25 @@ public class MainFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_menuEditMakeTransparentActionPerformed
 
     private void menuFileSaveAsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuFileSaveAsActionPerformed
-        final JFileChooser filreSaveDialog = new JFileChooser(this.lastSavedFile);
-        filreSaveDialog.setFileFilter(fileFilterPdf);
-        filreSaveDialog.setDialogTitle("Save PDF document");
+        final JFileChooser fileSaveDialog = new JFileChooser(this.lastSavedFile);
+        fileSaveDialog.setFileFilter(FILEFILTER_PDF);
+        fileSaveDialog.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        fileSaveDialog.setMultiSelectionEnabled(false);
+        fileSaveDialog.setDialogTitle("Save PDF document");
 
-        if (filreSaveDialog.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
-            this.lastSavedFile = filreSaveDialog.getSelectedFile();
-            if (!this.lastSavedFile.getName().contains(".")) {
-                this.lastSavedFile = new File(this.lastSavedFile.getParentFile(), this.lastSavedFile.getName() + ".pdf");
+        if (fileSaveDialog.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+            File targetFile = fileSaveDialog.getSelectedFile();
+            if (!targetFile.getName().contains(".")) {
+                targetFile = new File(targetFile.getParentFile(), targetFile.getName() + ".pdf");
             }
+            this.lastSavedFile = targetFile;
+
+            if (targetFile.exists() && JOptionPane.showConfirmDialog(this, "Override file " + targetFile.getName() + "?", "File exists", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE) == JOptionPane.CANCEL_OPTION) {
+                return;
+            }
+
             try {
-                this.document.save(this.lastSavedFile);
+                this.document.save(targetFile);
                 this.saveRequired = false;
                 this.updateTitle();
             } catch (IOException ex) {
@@ -396,6 +428,7 @@ public class MainFrame extends javax.swing.JFrame {
         final long selectedImages = this.pageTree.getSelectionPaths() == null ? 0L : Stream.of(this.pageTree.getSelectionPaths()).map(x -> x.getLastPathComponent()).filter(x -> x instanceof PageTreeModel.PageItem).count();
         this.menuEditMakeTransparent.setEnabled(selectedImages > 0);
         this.menuEditShowImage.setEnabled(selectedImages == 1);
+        this.menuEditReplaceByFile.setEnabled(selectedImages > 0);
     }//GEN-LAST:event_menuEditMenuSelected
 
     private void menuHelpAboutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuHelpAboutActionPerformed
@@ -430,6 +463,55 @@ public class MainFrame extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_menuEditShowImageActionPerformed
 
+
+    private void menuEditReplaceByFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuEditReplaceByFileActionPerformed
+        final JFileChooser fileChooser = new JFileChooser(this.lastImportedImageFile);
+        fileChooser.setFileFilter(MainFrame.FILEFILTER_PNG);
+        fileChooser.setMultiSelectionEnabled(false);
+        fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        fileChooser.setDialogTitle("Load image");
+
+        if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+            final File sourceFile = fileChooser.getSelectedFile();
+            this.lastImportedImageFile = sourceFile;
+
+            BufferedImage loadedImage = null;
+            try {
+                loadedImage = ImageIO.read(sourceFile);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(this, "Can't load file: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            
+            final int choose = JOptionPane.showConfirmDialog(this, "Find and replace for all document pages? (NO - only for the current one)", "Confirmation", JOptionPane.YES_NO_CANCEL_OPTION);
+            if (choose == JOptionPane.CANCEL_OPTION) {
+                return;
+            }
+
+            final List<Integer> pages = choose == JOptionPane.YES_OPTION ? IntStream.range(0, this.document.getNumberOfPages()).boxed().collect(Collectors.toList()) : List.of(((Integer) this.spinnerPage.getValue()) - 1);
+            final List<ImageNamePair> pairs = new ArrayList<>();
+
+            for (final TreePath path : this.pageTree.getSelectionPaths()) {
+                var last = path.getLastPathComponent();
+                if (last instanceof PageTreeModel.PageItem) {
+                    final PageTreeModel.PageItem i = (PageTreeModel.PageItem) last;
+                    pairs.add(new ImageNamePair(i.name, i.pdImage));
+                }
+            }
+            try {
+                final int counter = replaceImage(this.document, pages, pairs, loadedImage);
+                this.saveRequired |= counter != 0;
+                this.updateTitle();
+                JOptionPane.showMessageDialog(this, "Managed to find and replace " + counter + " image(s)", "Completed", JOptionPane.INFORMATION_MESSAGE);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(this, "Can't replace image(s): " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
+            this.updateVisiblePdfPage();
+        }
+    }//GEN-LAST:event_menuEditReplaceByFileActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel labelPageNumber;
@@ -437,6 +519,7 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JScrollPane mainScrollPane;
     private javax.swing.JMenu menuEdit;
     private javax.swing.JMenuItem menuEditMakeTransparent;
+    private javax.swing.JMenuItem menuEditReplaceByFile;
     private javax.swing.JMenuItem menuEditShowImage;
     private javax.swing.JMenu menuFile;
     private javax.swing.JMenuItem menuFileExit;
