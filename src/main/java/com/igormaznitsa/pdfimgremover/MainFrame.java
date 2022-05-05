@@ -15,6 +15,7 @@
  */
 package com.igormaznitsa.pdfimgremover;
 
+import java.awt.Desktop;
 import java.awt.Image;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -23,6 +24,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -432,7 +434,15 @@ public class MainFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_menuEditMenuSelected
 
     private void menuHelpAboutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuHelpAboutActionPerformed
-        JOptionPane.showMessageDialog(this, "PDF image remover\nVersion: 1.0.0\nAuthor: Igor Maznitsa", "About", JOptionPane.PLAIN_MESSAGE, new ImageIcon(this.applicationIcon));
+        final JHtmlLabel label = new JHtmlLabel("<html><b>PDF image remover</b><br><b>Version:</b> 1.0.0<br><b>Author:</b> Igor Maznitsa<br><a href=\"https://github.com/raydac/pdf-image-remover\">https://github.com/raydac/pdf-image-remover</a></html>");
+        label.addLinkListener((JHtmlLabel source, String link) -> {
+            try{
+                Desktop.getDesktop().browse(new URI(link));
+            }catch(Exception ex){
+                ex.printStackTrace();
+            }
+        });
+        JOptionPane.showMessageDialog(this, label, "About", JOptionPane.PLAIN_MESSAGE, new ImageIcon(this.applicationIcon));
     }//GEN-LAST:event_menuHelpAboutActionPerformed
 
     private void menuFileMenuSelected(javax.swing.event.MenuEvent evt) {//GEN-FIRST:event_menuFileMenuSelected
