@@ -83,6 +83,7 @@ public class MainFrame extends javax.swing.JFrame {
         initComponents();
         this.pageTree.setCellRenderer(new PageTreeModel.PageImageRenderer());
         this.scalableImage = new ScalableImage();
+        this.scaleStatusIndicator.setScalable(this.scalableImage);
         this.mainScrollPane.setViewportView(this.scalableImage);
 
         Image icon = null;
@@ -121,6 +122,7 @@ public class MainFrame extends javax.swing.JFrame {
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+        java.awt.GridBagConstraints gridBagConstraints;
 
         splitPane = new javax.swing.JSplitPane();
         scrollPanelTree = new javax.swing.JScrollPane();
@@ -130,6 +132,8 @@ public class MainFrame extends javax.swing.JFrame {
         jLabel1 = new javax.swing.JLabel();
         spinnerPage = new javax.swing.JSpinner();
         labelPageNumber = new javax.swing.JLabel();
+        filler1 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(32767, 0));
+        scaleStatusIndicator = new com.igormaznitsa.pdfimgremover.ScaleStatusIndicator();
         mainMenu = new javax.swing.JMenuBar();
         menuFile = new javax.swing.JMenu();
         menuFileOpen = new javax.swing.JMenuItem();
@@ -164,8 +168,11 @@ public class MainFrame extends javax.swing.JFrame {
         toolpanelPages.setLayout(new java.awt.GridBagLayout());
 
         jLabel1.setText("Page:");
-        toolpanelPages.add(jLabel1, new java.awt.GridBagConstraints());
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.insets = new java.awt.Insets(0, 16, 0, 0);
+        toolpanelPages.add(jLabel1, gridBagConstraints);
 
+        spinnerPage.setEnabled(false);
         spinnerPage.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
                 spinnerPageStateChanged(evt);
@@ -173,8 +180,19 @@ public class MainFrame extends javax.swing.JFrame {
         });
         toolpanelPages.add(spinnerPage, new java.awt.GridBagConstraints());
 
-        labelPageNumber.setText("/ ---");
+        labelPageNumber.setText(" / ---");
         toolpanelPages.add(labelPageNumber, new java.awt.GridBagConstraints());
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.weightx = 1000.0;
+        toolpanelPages.add(filler1, gridBagConstraints);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 4;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 16);
+        toolpanelPages.add(scaleStatusIndicator, gridBagConstraints);
 
         getContentPane().add(toolpanelPages, java.awt.BorderLayout.PAGE_START);
 
@@ -311,6 +329,7 @@ public class MainFrame extends javax.swing.JFrame {
                 this.document = Loader.loadPDF(this.lastOpenedFile);
                 this.renderer = new PDFRenderer(this.document);
                 this.spinnerPage.setModel(new SpinnerNumberModel(1, 1, document.getNumberOfPages(), 1));
+                this.spinnerPage.setEnabled(true);
                 this.labelPageNumber.setText("/ " + document.getNumberOfPages());
                 this.documentFile = this.lastOpenedFile;
                 this.updateTitle();
@@ -524,6 +543,7 @@ public class MainFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_menuEditReplaceByFileActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.Box.Filler filler1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel labelPageNumber;
     private javax.swing.JMenuBar mainMenu;
@@ -540,6 +560,7 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JMenu menuHelp;
     private javax.swing.JMenuItem menuHelpAbout;
     private javax.swing.JTree pageTree;
+    private com.igormaznitsa.pdfimgremover.ScaleStatusIndicator scaleStatusIndicator;
     private javax.swing.JScrollPane scrollPanelTree;
     private javax.swing.JSpinner spinnerPage;
     private javax.swing.JSplitPane splitPane;

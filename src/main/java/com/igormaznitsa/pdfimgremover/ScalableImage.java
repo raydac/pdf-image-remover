@@ -1,23 +1,21 @@
 /*
- * Copyright (C) 2018 Igor Maznitsa.
+ * Copyright (C) 2022 Igor Maznitsa
  *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
- * MA 02110-1301  USA
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.igormaznitsa.pdfimgremover;
 
+import com.igormaznitsa.pdfimgremover.ScaleStatusIndicator.Scalable;
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -36,7 +34,7 @@ import javax.swing.JComponent;
 import javax.swing.JViewport;
 import javax.swing.SwingUtilities;
 
-final class ScalableImage extends JComponent {
+final class ScalableImage extends JComponent implements Scalable {
 
     private static final float SCALE_STEP = 0.05f;
     private BufferedImage image;
@@ -190,14 +188,17 @@ final class ScalableImage extends JComponent {
         }
     }
 
+    @Override
     public void doZoomIn() {
         this.setScale(this.scale + SCALE_STEP);
     }
 
+    @Override
     public void doZoomOut() {
         this.setScale(this.scale - SCALE_STEP);
     }
 
+    @Override
     public void doZoomReset() {
         this.setScale(1.0f);
     }
@@ -255,6 +256,7 @@ final class ScalableImage extends JComponent {
         repaint();
     }
 
+    @Override
     public void setScale(final float scale) {
         this.scale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, scale));
         revalidate();
@@ -262,10 +264,12 @@ final class ScalableImage extends JComponent {
         fireScaleListeners();
     }
 
+    @Override
     public void addScaleListener(final ActionListener scaleListener) {
         this.scalableListeners.add(scaleListener);
     }
 
+    @Override
     public void removeScaleListener(final ActionListener scaleListener) {
         this.scalableListeners.remove(scaleListener);
     }
