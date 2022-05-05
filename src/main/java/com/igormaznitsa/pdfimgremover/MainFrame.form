@@ -92,7 +92,7 @@
                 <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
                   <Image iconType="3" name="/icons/emotion_ghost.png"/>
                 </Property>
-                <Property name="text" type="java.lang.String" value="Hide image(s)"/>
+                <Property name="text" type="java.lang.String" value="Hide image"/>
                 <Property name="toolTipText" type="java.lang.String" value="Replace selected images by fully transparent ones"/>
               </Properties>
               <Events>

@@ -335,7 +335,7 @@ public class MainFrame extends javax.swing.JFrame {
         menuEdit.add(menuEditReplaceByFile);
 
         menuEditMakeTransparent.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/emotion_ghost.png"))); // NOI18N
-        menuEditMakeTransparent.setText("Hide image(s)");
+        menuEditMakeTransparent.setText("Hide image");
         menuEditMakeTransparent.setToolTipText("Replace selected images by fully transparent ones");
         menuEditMakeTransparent.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -472,7 +472,7 @@ public class MainFrame extends javax.swing.JFrame {
     }
 
     private void menuEditMakeTransparentActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuEditMakeTransparentActionPerformed
-        final int choose = JOptionPane.showConfirmDialog(this, "Find and hide for all document pages? (NO - only for the current one)", "Confirmation", JOptionPane.YES_NO_CANCEL_OPTION);
+        final int choose = JOptionPane.showConfirmDialog(this, "Hide for all pages?", "Question", JOptionPane.YES_NO_CANCEL_OPTION);
         if (choose == JOptionPane.CANCEL_OPTION) {
             return;
         }
@@ -596,7 +596,7 @@ public class MainFrame extends javax.swing.JFrame {
                 return;
             }
 
-            final int choose = JOptionPane.showConfirmDialog(this, "Find and replace for all document pages? (NO - only for the current one)", "Confirmation", JOptionPane.YES_NO_CANCEL_OPTION);
+            final int choose = JOptionPane.showConfirmDialog(this, "Replace for all pages?", "Question", JOptionPane.YES_NO_CANCEL_OPTION);
             if (choose == JOptionPane.CANCEL_OPTION) {
                 return;
             }
