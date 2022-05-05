@@ -224,6 +224,7 @@ public class MainFrame extends javax.swing.JFrame {
         menuFile.add(menuFileSaveAs);
         menuFile.add(menuFileSeparator);
 
+        menuFileExit.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F4, java.awt.event.InputEvent.ALT_DOWN_MASK));
         menuFileExit.setText("Exit");
         menuFileExit.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
