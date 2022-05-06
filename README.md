@@ -11,6 +11,8 @@ Small GUI utility, it allows manupulate images in PDF documents:
  - extract selected image from document and save it as image file
  - replace selected images by image loaded from file (for one page or for all pages)
 
+![screenshot](docs/screenshot.png)   
+
 # How to start?
 
 The utility is written in pure Java and requires pre-installed JDK 9+ for its work. If you have not JDK on your machine, you can download it from [the page](https://libericajdk.ru/pages/downloads/#/java-11-lts).
