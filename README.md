@@ -29,3 +29,9 @@ If you want start the application manually with JDK then use JAR file and start 
 ```
 java -jar pdf-image-remover-1.0.0.jar
 ```
+
+# How to use?
+
+Just load a PDF file and navigate through its pages, you can use either the page index spinner or keys PageUp/PageDown/Home/End. The left Tree panel shows found images for the current page and you can see them through double mouse click on tree items. You can zoom shown PDF page with CTRL+mosue wheel. Edit menu allows to manipulate selected images.
+
+Don't forget save result of your work as new PDF file.
