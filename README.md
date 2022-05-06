@@ -3,11 +3,21 @@
 [![PayPal donation](https://img.shields.io/badge/donation-PayPal-cyan.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=AHWJHJFBAWGL2)
 [![YooMoney donation](https://img.shields.io/badge/donation-Yoo.money-blue.svg)](https://yoomoney.ru/to/41001158080699)
 
-Small GUI utility written in pure-Java to hide selected images in PDF files.
 
-It allows
- - hide images in PDF document
- - extract images from PDF document
- - replace images in PDF document
+# What is it?
 
-The utility is written in Java and requires Java 11+ for work.
+Small GUI utility, it allows manupulate images in PDF documents:
+ - hide selected ones (for one page or for all pages)
+ - extract selected image from document and save it as image file
+ - replace selected images by image loaded from file (for one page or for all pages)
+
+# How to start?
+
+The utility is written in pure Java and requires pre-installed JDK 11+ for its work. If you have not JDK on your machine, you can download it from [the page](https://libericajdk.ru/pages/downloads/#/java-11-lts).
+
+You can download starter for your OS but also you can download juat pure JAR archive.
+
+If you want start the application manually with JDK then use JAR file and start it through command line:
+```
+java -jar pdf-image-remover1.0.0.jar
+```
