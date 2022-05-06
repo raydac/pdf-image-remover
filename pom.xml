@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.mycompany.pdfobjectremover</groupId>
     <artifactId>pdf-image-remover</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0.0</version>
 
     <name>pdf-image-remover</name>
 
@@ -12,8 +12,8 @@
     <properties>
         <app.name>pdf-image-remover-${project.version}</app.name>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
+        <maven.compiler.source>9</maven.compiler.source>
+        <maven.compiler.target>9</maven.compiler.target>
     </properties>
 
     <issueManagement>
@@ -76,7 +76,7 @@
                                 <CFBundleURLTypes>
                                     <string>msa</string>
                                 </CFBundleURLTypes>
-                                <JVMVersion>11+</JVMVersion>
+                                <JVMVersion>9+</JVMVersion>
                                 <JVMMainClassName>com.igormaznitsa.pdfimgremover.Application</JVMMainClassName>
                             </plist>
                             <dmg>

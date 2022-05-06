@@ -35,7 +35,7 @@ public class ScaleStatusIndicator extends JLabel {
     };
 
     public void setScalable(final Scalable scalable) {
-        var prev = this.observableObject.getAndSet(scalable);
+        Scalable prev = this.observableObject.getAndSet(scalable);
         if (prev != null) {
             prev.removeScaleListener(scaleListener);
         }
@@ -60,7 +60,7 @@ public class ScaleStatusIndicator extends JLabel {
         this.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(final MouseEvent e) {
-                var target = observableObject.get();
+                Scalable target = observableObject.get();
                 if (target != null) {
                     target.doZoomReset();
                 }
@@ -71,21 +71,21 @@ public class ScaleStatusIndicator extends JLabel {
     }
 
     public void doZoomIn() {
-        var target = observableObject.get();
+        Scalable target = observableObject.get();
         if (target != null) {
             target.doZoomIn();
         }
     }
 
     public void doZoomOut() {
-        var target = observableObject.get();
+        Scalable target = observableObject.get();
         if (target != null) {
             target.doZoomOut();
         }
     }
 
     public void doZoomReset() {
-        var target = observableObject.get();
+        Scalable target = observableObject.get();
         if (target != null) {
             target.doZoomReset();
         }
@@ -105,7 +105,7 @@ public class ScaleStatusIndicator extends JLabel {
     }
 
     private void updateTextForScale() {
-        var target = observableObject.get();
+        Scalable target = observableObject.get();
         if (target == null) {
             this.setText("<html><b>...</b></html>");
         } else {

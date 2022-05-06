@@ -15,6 +15,7 @@
  */
 package com.igormaznitsa.pdfimgremover;
 
+import com.igormaznitsa.pdfimgremover.ImageFinderStreamEngine.FoundImage;
 import java.awt.Desktop;
 import java.awt.Image;
 import java.awt.KeyEventDispatcher;
@@ -85,7 +86,7 @@ public class MainFrame extends javax.swing.JFrame {
     public MainFrame() {
         initComponents();
         
-        var focusManager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
+        final KeyboardFocusManager focusManager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
         focusManager.addKeyEventDispatcher(new KeyEventDispatcher(){
             @Override
             public boolean dispatchKeyEvent(KeyEvent e) {
@@ -453,7 +454,7 @@ public class MainFrame extends javax.swing.JFrame {
             PDPage page = document.getPage(pageIndex);
             final Map<COSName, ImageFinderStreamEngine.FoundImage> foundImages = finder.findImages(page);
             for (final ImageNamePair pair : images) {
-                var foundImageOnPage = foundImages.get(pair.name);
+                FoundImage foundImageOnPage = foundImages.get(pair.name);
                 if (foundImageOnPage != null && foundImageOnPage.image.getWidth() == pair.image.getWidth() && foundImageOnPage.image.getHeight() == pair.image.getHeight()) {
                     foundImageOnPage.resources.put(pair.name, pair.targetImage);
                     counter++;
@@ -481,7 +482,7 @@ public class MainFrame extends javax.swing.JFrame {
         final List<ImageNamePair> pairs = new ArrayList<>();
 
         for (final TreePath path : this.pageTree.getSelectionPaths()) {
-            var last = path.getLastPathComponent();
+            Object last = path.getLastPathComponent();
             if (last instanceof PageTreeModel.PageItem) {
                 final PageTreeModel.PageItem i = (PageTreeModel.PageItem) last;
                 pairs.add(new ImageNamePair(i.name, i.pdImage));
@@ -605,7 +606,7 @@ public class MainFrame extends javax.swing.JFrame {
             final List<ImageNamePair> pairs = new ArrayList<>();
 
             for (final TreePath path : this.pageTree.getSelectionPaths()) {
-                var last = path.getLastPathComponent();
+                Object last = path.getLastPathComponent();
                 if (last instanceof PageTreeModel.PageItem) {
                     final PageTreeModel.PageItem i = (PageTreeModel.PageItem) last;
                     pairs.add(new ImageNamePair(i.name, i.pdImage));
