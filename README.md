@@ -17,6 +17,12 @@ The utility is written in pure Java and requires pre-installed JDK 11+ for its w
 
 You can download starter for your OS but also you can download juat pure JAR archive.
 
+Pre-built starters for different OS:
+ - [for Windows](https://github.com/raydac/pdf-image-remover/releases/download/1.0.0-S/pdf-image-remover-1.0-SNAPSHOT.exe)
+ - [for Linux/Unix](https://github.com/raydac/pdf-image-remover/releases/download/1.0.0-S/pdf-image-remover-1.0-SNAPSHOT.sh)
+ - [for MacOS](https://github.com/raydac/pdf-image-remover/releases/download/1.0.0-S/pdf-image-remover_1.0-SNAPSHOT.dmg)
+ - [pure Java](https://github.com/raydac/pdf-image-remover/releases/download/1.0.0-S/pdf-image-remover-1.0-SNAPSHOT.jar)
+
 If you want start the application manually with JDK then use JAR file and start it through command line:
 ```
 java -jar pdf-image-remover1.0.0.jar
