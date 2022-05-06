@@ -135,7 +135,7 @@
                                 <configuration>
                                     <outfile>${project.build.directory}${file.separator}${app.name}.exe</outfile>
                                     <jre>
-                                        <minVersion>11</minVersion>
+                                        <minVersion>9</minVersion>
                                         <opts>
                                             <opt>-Xmx2G</opt>
                                         </opts>
