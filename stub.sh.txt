@@ -1,6 +1,6 @@
 #!/bin/sh
 
-echo Pdf Image Remover v.1.0.0
+echo Pdf Image Remover v.1.0.1
 
 MYSELF=`which "$0" 2>/dev/null`
 [ $? -gt 0 -a -f "$0" ] && MYSELF="./$0"
