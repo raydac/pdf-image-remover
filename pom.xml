@@ -23,6 +23,12 @@
 
     <inceptionYear>2022</inceptionYear>
 
+    <description>GUI utility to extract, remove or replace images in PDF documents</description>
+
+    <organization>
+        <name>igormaznitsa.com</name>
+    </organization>
+
     <developers>
         <developer>
             <id>raydac</id>
@@ -136,6 +142,7 @@
                                     <outfile>${project.build.directory}${file.separator}${app.name}.exe</outfile>
                                     <jre>
                                         <minVersion>9</minVersion>
+                                        <path>%VAR%</path>
                                         <opts>
                                             <opt>-Xmx2G</opt>
                                         </opts>
