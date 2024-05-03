@@ -28,6 +28,11 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBuffer;
+import java.awt.image.DataBufferByte;
+import java.awt.image.DataBufferDouble;
+import java.awt.image.DataBufferFloat;
+import java.awt.image.DataBufferInt;
+import java.awt.image.DataBufferShort;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -37,6 +42,7 @@ import java.io.PrintWriter;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -244,12 +250,12 @@ public class MainFrame extends javax.swing.JFrame {
             }
 
         });
-        
-        final JPanel glassPanel = new JPanel(new GridLayout(3,3));
-        
+
+        final JPanel glassPanel = new JPanel(new GridLayout(3, 3));
+
         glassPanel.setBackground(new Color(213, 33, 255, 123));
         glassPanel.setVisible(false);
-        
+
         this.progressBar = new JProgressBar(0, 100);
         this.progressBar.setStringPainted(true);
         this.progressBar.setString("Please wait");
@@ -257,7 +263,7 @@ public class MainFrame extends javax.swing.JFrame {
         glassPanel.add(Box.createGlue());
         glassPanel.add(Box.createGlue());
         glassPanel.add(Box.createGlue());
-        
+
         glassPanel.add(Box.createGlue());
         glassPanel.add(this.progressBar);
         glassPanel.add(Box.createGlue());
@@ -270,7 +276,7 @@ public class MainFrame extends javax.swing.JFrame {
     }
 
     private final JProgressBar progressBar;
-    
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -588,18 +594,38 @@ public class MainFrame extends javax.swing.JFrame {
     }
 
     private static boolean isDataBufferEquals(final DataBuffer one, final DataBuffer two) {
-        if (one.getNumBanks() == two.getNumBanks()
+        if (one == two) {
+            return true;
+        }
+
+        if (one.getClass().equals(two.getClass())
+                && one.getNumBanks() == two.getNumBanks()
                 && one.getSize() == two.getSize()) {
+            
             final int size = one.getSize();
             final int[] offsets1 = one.getOffsets();
             final int[] offsets2 = two.getOffsets();
-            for (int i = 0; i < one.getNumBanks(); i++) {
-                if (offsets1[i] != offsets2[i]) {
-                    return false;
-                }
-                for (int x = 0; x < size; x++) {
-                    if (Double.compare(one.getElemDouble(i, x), two.getElemDouble(i, x)) != 0) {
+
+            if (one instanceof DataBufferInt) {
+                return Arrays.equals(((DataBufferInt) one).getData(), ((DataBufferInt) two).getData());
+            } else if (one instanceof DataBufferFloat) {
+                return Arrays.equals(((DataBufferFloat) one).getData(), ((DataBufferFloat) two).getData());
+            } else if (one instanceof DataBufferDouble) {
+                return Arrays.equals(((DataBufferDouble) one).getData(), ((DataBufferDouble) two).getData());
+            } else if (one instanceof DataBufferByte) {
+                return Arrays.equals(((DataBufferByte) one).getData(), ((DataBufferByte) two).getData());
+            } else if (one instanceof DataBufferShort) {
+                return Arrays.equals(((DataBufferShort) one).getData(), ((DataBufferShort) two).getData());
+            } else {
+
+                for (int i = 0; i < one.getNumBanks(); i++) {
+                    if (offsets1[i] != offsets2[i]) {
                         return false;
+                    }
+                    for (int x = 0; x < size; x++) {
+                        if (Double.compare(one.getElemDouble(i, x), two.getElemDouble(i, x)) != 0) {
+                            return false;
+                        }
                     }
                 }
             }
@@ -617,7 +643,7 @@ public class MainFrame extends javax.swing.JFrame {
             final Consumer<Integer> progressConsumer,
             final Consumer<List<Integer>> publishConsumer,
             final BiConsumer<Throwable, Integer> doneConsumer) throws IOException {
-        final SwingWorker<Integer,Integer> result = new SwingWorker<Integer, Integer>() {
+        final SwingWorker<Integer, Integer> result = new SwingWorker<Integer, Integer>() {
 
             private volatile Throwable error = null;
             private volatile int counter = 0;
@@ -669,7 +695,7 @@ public class MainFrame extends javax.swing.JFrame {
                         }
                         processed++;
                         this.publish(processed);
-                        this.setProgress(Math.min(100, Math.round(((float)processed / (float)pageIndexes.size())* 100.0f)));
+                        this.setProgress(Math.min(100, Math.round(((float) processed / (float) pageIndexes.size()) * 100.0f)));
                     }
 
                     log("replaceImage found name of requested image(s) on " + counter + " page(s) (from " + processed + ')' + " detected " + detectedErrors.get() + " error(s) ");
@@ -693,14 +719,14 @@ public class MainFrame extends javax.swing.JFrame {
             }
 
         };
-        
-        result.getPropertyChangeSupport().addPropertyChangeListener("progress", new PropertyChangeListener(){
+
+        result.getPropertyChangeSupport().addPropertyChangeListener("progress", new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
-                progressConsumer.accept((Integer)evt.getNewValue());
+                progressConsumer.accept((Integer) evt.getNewValue());
             }
         });
-        
+
         return result;
     }
 
@@ -740,10 +766,10 @@ public class MainFrame extends javax.swing.JFrame {
         try {
             final SwingWorker<Integer, Integer> worker = makeSwingWorkerReplaceImage(document, pages, pairs, null, byImage,
                     (progress) -> {
-                      this.progressBar.setValue(progress);
+                        this.progressBar.setValue(progress);
                     },
                     (list) -> {
-                      
+
                     },
                     (error, counter) -> {
                         this.deactivateProgress();
