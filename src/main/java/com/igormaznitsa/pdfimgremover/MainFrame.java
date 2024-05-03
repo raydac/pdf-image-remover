@@ -28,7 +28,9 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -59,6 +61,8 @@ public class MainFrame extends javax.swing.JFrame {
     private final ScalableImage scalableImage;
     private File lastImportedImageFile;
 
+    private final PrintWriter logWriter;
+
     public static final FileFilter FILEFILTER_PDF = new FileFilter() {
         @Override
         public boolean accept(File file) {
@@ -83,18 +87,60 @@ public class MainFrame extends javax.swing.JFrame {
         }
     };
 
+    public void log(final String logLine, final Throwable... errors) {
+        if (this.logWriter == null) {
+            System.out.println(logLine);
+            for (final Throwable t : errors) {
+                t.printStackTrace();
+            }
+        } else {
+            synchronized (this.logWriter) {
+                try {
+                    this.logWriter.println(logLine);
+                    for (final Throwable t : errors) {
+                        t.printStackTrace(this.logWriter);
+                    }
+                    this.logWriter.flush();
+                } catch (Exception ex) {
+                    System.err.println("can't write log for error: " + ex.getMessage());
+                }
+            }
+        }
+    }
+
     public MainFrame() {
         initComponents();
-        
+
+        PrintWriter writer = null;
+
+        try {
+            writer = new PrintWriter(new File(".", "image-remover-log.txt"), StandardCharsets.UTF_8);
+            Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    if (logWriter != null) {
+                        try {
+                            logWriter.close();
+                        } catch (Exception ex) {
+                        }
+                    }
+                }
+            }));
+        } catch (Exception ex) {
+            System.err.println("Can't create log file");
+            ex.printStackTrace();
+        }
+        this.logWriter = writer;
+
         final KeyboardFocusManager focusManager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
-        focusManager.addKeyEventDispatcher(new KeyEventDispatcher(){
+        focusManager.addKeyEventDispatcher(new KeyEventDispatcher() {
             @Override
             public boolean dispatchKeyEvent(KeyEvent e) {
                 boolean result = false;
-                if (!e.isConsumed() && e.getModifiersEx() == 0){
+                if (!e.isConsumed() && e.getModifiersEx() == 0) {
                     final boolean released = e.getID() == KeyEvent.KEY_RELEASED;
                     switch (e.getKeyCode()) {
-                        case KeyEvent.VK_PAGE_DOWN:{
+                        case KeyEvent.VK_PAGE_DOWN: {
                             if (released) {
                                 try {
                                     spinnerPage.setValue(((SpinnerNumberModel) spinnerPage.getModel()).getNextValue());
@@ -104,30 +150,33 @@ public class MainFrame extends javax.swing.JFrame {
                             }
                             e.consume();
                             result = true;
-                        }break;
-                        case KeyEvent.VK_END:{
+                        }
+                        break;
+                        case KeyEvent.VK_END: {
                             if (released && spinnerPage.isEnabled()) {
-                                try{
-                                spinnerPage.setValue(((SpinnerNumberModel)spinnerPage.getModel()).getMaximum());
-                                }catch(Exception ex){
+                                try {
+                                    spinnerPage.setValue(((SpinnerNumberModel) spinnerPage.getModel()).getMaximum());
+                                } catch (Exception ex) {
                                     // ignore
                                 }
                             }
                             e.consume();
                             result = true;
-                        }break;
-                        case KeyEvent.VK_HOME:{
+                        }
+                        break;
+                        case KeyEvent.VK_HOME: {
                             if (released && spinnerPage.isEnabled()) {
-                                try{
-                                spinnerPage.setValue(((SpinnerNumberModel)spinnerPage.getModel()).getMinimum());
-                                }catch(Exception ex){
+                                try {
+                                    spinnerPage.setValue(((SpinnerNumberModel) spinnerPage.getModel()).getMinimum());
+                                } catch (Exception ex) {
                                     // ignore
                                 }
                             }
                             e.consume();
                             result = true;
-                        }break;
-                        case KeyEvent.VK_PAGE_UP:{
+                        }
+                        break;
+                        case KeyEvent.VK_PAGE_UP: {
                             if (released) {
                                 try {
                                     spinnerPage.setValue(((SpinnerNumberModel) spinnerPage.getModel()).getPreviousValue());
@@ -137,13 +186,14 @@ public class MainFrame extends javax.swing.JFrame {
                             }
                             e.consume();
                             result = true;
-                        }break;
+                        }
+                        break;
                     }
                 }
                 return result;
             }
         });
-        
+
         this.pageTree.setCellRenderer(new PageTreeModel.PageImageRenderer());
         this.scalableImage = new ScalableImage();
         this.scaleStatusIndicator.setScalable(this.scalableImage);
@@ -391,36 +441,42 @@ public class MainFrame extends javax.swing.JFrame {
     }
 
     private void menuFileOpenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuFileOpenActionPerformed
-        if (this.saveRequired && JOptionPane.showConfirmDialog(this, "You have unsaved result, open new file?", "Unsaved result", JOptionPane.OK_CANCEL_OPTION) == JOptionPane.CANCEL_OPTION) {
-            return;
-        }
+        this.log("Pressed menuFileOpenActionPerformed");
 
-        final JFileChooser fileOpenDialog = new JFileChooser(this.lastOpenedFile);
-        fileOpenDialog.setFileFilter(FILEFILTER_PDF);
-        fileOpenDialog.setFileSelectionMode(JFileChooser.FILES_ONLY);
-        fileOpenDialog.setMultiSelectionEnabled(false);
-        fileOpenDialog.setDialogTitle("Open PDF document");
-
-        if (fileOpenDialog.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-            this.lastOpenedFile = fileOpenDialog.getSelectedFile();
-            try {
-                if (this.document != null) {
-                    this.document.close();
-                }
-
-                this.document = Loader.loadPDF(this.lastOpenedFile);
-                this.renderer = new PDFRenderer(this.document);
-                this.spinnerPage.setModel(new SpinnerNumberModel(1, 1, document.getNumberOfPages(), 1));
-                this.spinnerPage.setEnabled(true);
-                this.labelPageNumber.setText("/ " + document.getNumberOfPages());
-                this.documentFile = this.lastOpenedFile;
-                this.saveRequired = false;
-                this.updateTitle();
-            } catch (IOException ex) {
-                JOptionPane.showMessageDialog(this, "Can't load file for error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            } finally {
-                this.updateVisiblePdfPage();
+        try {
+            if (this.saveRequired && JOptionPane.showConfirmDialog(this, "You have unsaved result, open new file?", "Unsaved result", JOptionPane.OK_CANCEL_OPTION) == JOptionPane.CANCEL_OPTION) {
+                return;
             }
+
+            final JFileChooser fileOpenDialog = new JFileChooser(this.lastOpenedFile);
+            fileOpenDialog.setFileFilter(FILEFILTER_PDF);
+            fileOpenDialog.setFileSelectionMode(JFileChooser.FILES_ONLY);
+            fileOpenDialog.setMultiSelectionEnabled(false);
+            fileOpenDialog.setDialogTitle("Open PDF document");
+
+            if (fileOpenDialog.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+                this.lastOpenedFile = fileOpenDialog.getSelectedFile();
+                try {
+                    if (this.document != null) {
+                        this.document.close();
+                    }
+
+                    this.document = Loader.loadPDF(this.lastOpenedFile);
+                    this.renderer = new PDFRenderer(this.document);
+                    this.spinnerPage.setModel(new SpinnerNumberModel(1, 1, document.getNumberOfPages(), 1));
+                    this.spinnerPage.setEnabled(true);
+                    this.labelPageNumber.setText("/ " + document.getNumberOfPages());
+                    this.documentFile = this.lastOpenedFile;
+                    this.saveRequired = false;
+                    this.updateTitle();
+                } catch (IOException ex) {
+                    JOptionPane.showMessageDialog(this, "Can't load file for error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                } finally {
+                    this.updateVisiblePdfPage();
+                }
+            }
+        } catch (Exception ex) {
+            this.log("Error during menuFileOpenActionPerformed", ex);
         }
     }//GEN-LAST:event_menuFileOpenActionPerformed
 
@@ -473,59 +529,72 @@ public class MainFrame extends javax.swing.JFrame {
     }
 
     private void menuEditMakeTransparentActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuEditMakeTransparentActionPerformed
-        final int choose = JOptionPane.showConfirmDialog(this, "Hide for all pages?", "Question", JOptionPane.YES_NO_CANCEL_OPTION);
-        if (choose == JOptionPane.CANCEL_OPTION) {
-            return;
-        }
+        this.log("Pressed menuEditMakeTransparentActionPerformed");
 
-        final List<Integer> pages = choose == JOptionPane.YES_OPTION ? IntStream.range(0, this.document.getNumberOfPages()).boxed().collect(Collectors.toList()) : List.of(((Integer) this.spinnerPage.getValue()) - 1);
-        final List<ImageNamePair> pairs = new ArrayList<>();
-
-        for (final TreePath path : this.pageTree.getSelectionPaths()) {
-            Object last = path.getLastPathComponent();
-            if (last instanceof PageTreeModel.PageItem) {
-                final PageTreeModel.PageItem i = (PageTreeModel.PageItem) last;
-                pairs.add(new ImageNamePair(i.name, i.pdImage));
-            }
-        }
         try {
-            final int counter = replaceImage(this.document, pages, pairs, null);
-            this.saveRequired |= counter != 0;
-            this.updateTitle();
-            JOptionPane.showMessageDialog(this, "Managed to find and hide " + counter + " image(s)", "Completed", JOptionPane.INFORMATION_MESSAGE);
-        } catch (IOException ex) {
-            ex.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Can't hide image(s): " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        }
-        this.updateVisiblePdfPage();
-    }//GEN-LAST:event_menuEditMakeTransparentActionPerformed
 
-    private void menuFileSaveAsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuFileSaveAsActionPerformed
-        final JFileChooser fileSaveDialog = new JFileChooser(this.lastSavedFile);
-        fileSaveDialog.setFileFilter(FILEFILTER_PDF);
-        fileSaveDialog.setFileSelectionMode(JFileChooser.FILES_ONLY);
-        fileSaveDialog.setMultiSelectionEnabled(false);
-        fileSaveDialog.setDialogTitle("Save PDF document");
-
-        if (fileSaveDialog.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
-            File targetFile = fileSaveDialog.getSelectedFile();
-            if (!targetFile.getName().contains(".")) {
-                targetFile = new File(targetFile.getParentFile(), targetFile.getName() + ".pdf");
-            }
-            this.lastSavedFile = targetFile;
-
-            if (targetFile.exists() && JOptionPane.showConfirmDialog(this, "Override file " + targetFile.getName() + "?", "File exists", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE) == JOptionPane.CANCEL_OPTION) {
+            final int choose = JOptionPane.showConfirmDialog(this, "Hide for all pages?", "Question", JOptionPane.YES_NO_CANCEL_OPTION);
+            if (choose == JOptionPane.CANCEL_OPTION) {
                 return;
             }
 
+            final List<Integer> pages = choose == JOptionPane.YES_OPTION ? IntStream.range(0, this.document.getNumberOfPages()).boxed().collect(Collectors.toList()) : List.of(((Integer) this.spinnerPage.getValue()) - 1);
+            final List<ImageNamePair> pairs = new ArrayList<>();
+
+            for (final TreePath path : this.pageTree.getSelectionPaths()) {
+                Object last = path.getLastPathComponent();
+                if (last instanceof PageTreeModel.PageItem) {
+                    final PageTreeModel.PageItem i = (PageTreeModel.PageItem) last;
+                    pairs.add(new ImageNamePair(i.name, i.pdImage));
+                }
+            }
             try {
-                this.document.save(targetFile);
-                this.saveRequired = false;
+                final int counter = replaceImage(this.document, pages, pairs, null);
+                this.saveRequired |= counter != 0;
                 this.updateTitle();
+                JOptionPane.showMessageDialog(this, "Managed to find and hide " + counter + " image(s)", "Completed", JOptionPane.INFORMATION_MESSAGE);
             } catch (IOException ex) {
                 ex.printStackTrace();
-                JOptionPane.showMessageDialog(this, "Can't save file for error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Can't hide image(s): " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
+            this.updateVisiblePdfPage();
+        } catch (Exception ex) {
+            this.log("Error during menuEditMakeTransparentActionPerformed", ex);
+        }
+    }//GEN-LAST:event_menuEditMakeTransparentActionPerformed
+
+    private void menuFileSaveAsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuFileSaveAsActionPerformed
+        this.log("Pressed menuFileSaveAsActionPerformed");
+
+        try {
+            final JFileChooser fileSaveDialog = new JFileChooser(this.lastSavedFile);
+            fileSaveDialog.setFileFilter(FILEFILTER_PDF);
+            fileSaveDialog.setFileSelectionMode(JFileChooser.FILES_ONLY);
+            fileSaveDialog.setMultiSelectionEnabled(false);
+            fileSaveDialog.setDialogTitle("Save PDF document");
+
+            if (fileSaveDialog.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+                File targetFile = fileSaveDialog.getSelectedFile();
+                if (!targetFile.getName().contains(".")) {
+                    targetFile = new File(targetFile.getParentFile(), targetFile.getName() + ".pdf");
+                }
+                this.lastSavedFile = targetFile;
+
+                if (targetFile.exists() && JOptionPane.showConfirmDialog(this, "Override file " + targetFile.getName() + "?", "File exists", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE) == JOptionPane.CANCEL_OPTION) {
+                    return;
+                }
+
+                try {
+                    this.document.save(targetFile);
+                    this.saveRequired = false;
+                    this.updateTitle();
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                    JOptionPane.showMessageDialog(this, "Can't save file for error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        } catch (Exception ex) {
+            this.log("Error during menuFileSaveAsActionPerformed", ex);
         }
     }//GEN-LAST:event_menuFileSaveAsActionPerformed
 
@@ -578,50 +647,55 @@ public class MainFrame extends javax.swing.JFrame {
 
 
     private void menuEditReplaceByFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuEditReplaceByFileActionPerformed
-        final JFileChooser fileChooser = new JFileChooser(this.lastImportedImageFile);
-        fileChooser.setFileFilter(MainFrame.FILEFILTER_PNG);
-        fileChooser.setMultiSelectionEnabled(false);
-        fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-        fileChooser.setDialogTitle("Load image");
+        this.log("pressed menuEditReplaceByFileActionPerformed");
+        try {
+            final JFileChooser fileChooser = new JFileChooser(this.lastImportedImageFile);
+            fileChooser.setFileFilter(MainFrame.FILEFILTER_PNG);
+            fileChooser.setMultiSelectionEnabled(false);
+            fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+            fileChooser.setDialogTitle("Load image");
 
-        if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-            final File sourceFile = fileChooser.getSelectedFile();
-            this.lastImportedImageFile = sourceFile;
+            if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+                final File sourceFile = fileChooser.getSelectedFile();
+                this.lastImportedImageFile = sourceFile;
 
-            BufferedImage loadedImage = null;
-            try {
-                loadedImage = ImageIO.read(sourceFile);
-            } catch (Exception ex) {
-                ex.printStackTrace();
-                JOptionPane.showMessageDialog(this, "Can't load file: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            final int choose = JOptionPane.showConfirmDialog(this, "Replace for all pages?", "Question", JOptionPane.YES_NO_CANCEL_OPTION);
-            if (choose == JOptionPane.CANCEL_OPTION) {
-                return;
-            }
-
-            final List<Integer> pages = choose == JOptionPane.YES_OPTION ? IntStream.range(0, this.document.getNumberOfPages()).boxed().collect(Collectors.toList()) : List.of(((Integer) this.spinnerPage.getValue()) - 1);
-            final List<ImageNamePair> pairs = new ArrayList<>();
-
-            for (final TreePath path : this.pageTree.getSelectionPaths()) {
-                Object last = path.getLastPathComponent();
-                if (last instanceof PageTreeModel.PageItem) {
-                    final PageTreeModel.PageItem i = (PageTreeModel.PageItem) last;
-                    pairs.add(new ImageNamePair(i.name, i.pdImage));
+                BufferedImage loadedImage = null;
+                try {
+                    loadedImage = ImageIO.read(sourceFile);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                    JOptionPane.showMessageDialog(this, "Can't load file: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
                 }
+
+                final int choose = JOptionPane.showConfirmDialog(this, "Replace for all pages?", "Question", JOptionPane.YES_NO_CANCEL_OPTION);
+                if (choose == JOptionPane.CANCEL_OPTION) {
+                    return;
+                }
+
+                final List<Integer> pages = choose == JOptionPane.YES_OPTION ? IntStream.range(0, this.document.getNumberOfPages()).boxed().collect(Collectors.toList()) : List.of(((Integer) this.spinnerPage.getValue()) - 1);
+                final List<ImageNamePair> pairs = new ArrayList<>();
+
+                for (final TreePath path : this.pageTree.getSelectionPaths()) {
+                    Object last = path.getLastPathComponent();
+                    if (last instanceof PageTreeModel.PageItem) {
+                        final PageTreeModel.PageItem i = (PageTreeModel.PageItem) last;
+                        pairs.add(new ImageNamePair(i.name, i.pdImage));
+                    }
+                }
+                try {
+                    final int counter = replaceImage(this.document, pages, pairs, loadedImage);
+                    this.saveRequired |= counter != 0;
+                    this.updateTitle();
+                    JOptionPane.showMessageDialog(this, "Managed to find and replace " + counter + " image(s)", "Completed", JOptionPane.INFORMATION_MESSAGE);
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                    JOptionPane.showMessageDialog(this, "Can't replace image(s): " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                }
+                this.updateVisiblePdfPage();
             }
-            try {
-                final int counter = replaceImage(this.document, pages, pairs, loadedImage);
-                this.saveRequired |= counter != 0;
-                this.updateTitle();
-                JOptionPane.showMessageDialog(this, "Managed to find and replace " + counter + " image(s)", "Completed", JOptionPane.INFORMATION_MESSAGE);
-            } catch (IOException ex) {
-                ex.printStackTrace();
-                JOptionPane.showMessageDialog(this, "Can't replace image(s): " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            }
-            this.updateVisiblePdfPage();
+        } catch (Exception ex) {
+            this.log("ERROR during menuEditReplaceByFileActionPerformed", ex);
         }
     }//GEN-LAST:event_menuEditReplaceByFileActionPerformed
 
