@@ -68,35 +68,59 @@
                 <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
                   <Image iconType="3" name="/icons/image.png"/>
                 </Property>
-                <Property name="text" type="java.lang.String" value="Show image"/>
-                <Property name="toolTipText" type="java.lang.String" value="Show the selected image through special dialog"/>
+                <Property name="text" type="java.lang.String" value="Show picture"/>
+                <Property name="toolTipText" type="java.lang.String" value="Show selected picture in separated dialog"/>
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuEditShowImageActionPerformed"/>
               </Events>
             </MenuItem>
-            <MenuItem class="javax.swing.JMenuItem" name="menuEditReplaceByFile">
+            <MenuItem class="javax.swing.JMenuItem" name="menuEditReplaceByFileForName">
               <Properties>
                 <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
                   <Image iconType="3" name="/icons/table_replace.png"/>
                 </Property>
-                <Property name="text" type="java.lang.String" value="Replace by file"/>
-                <Property name="toolTipText" type="java.lang.String" value="Replace selected images by image loaded from file"/>
+                <Property name="text" type="java.lang.String" value="Replace by file (for name)"/>
+                <Property name="toolTipText" type="java.lang.String" value="Find and replace selected picture in the dicument by its name"/>
               </Properties>
               <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuEditReplaceByFileActionPerformed"/>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuEditReplaceByFileForNameActionPerformed"/>
               </Events>
             </MenuItem>
-            <MenuItem class="javax.swing.JMenuItem" name="menuEditMakeTransparent">
+            <MenuItem class="javax.swing.JMenuItem" name="menuEditReplaceByFileForImage">
+              <Properties>
+                <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
+                  <Image iconType="3" name="/icons/table_replace_slow.png"/>
+                </Property>
+                <Property name="text" type="java.lang.String" value="Replace by file (for image)"/>
+                <Property name="toolTipText" type="java.lang.String" value="Find and hide picture by transparent region for its name"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuEditReplaceByFileForImageActionPerformed"/>
+              </Events>
+            </MenuItem>
+            <MenuItem class="javax.swing.JMenuItem" name="menuEditHidePictureForName">
               <Properties>
                 <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
                   <Image iconType="3" name="/icons/emotion_ghost.png"/>
                 </Property>
-                <Property name="text" type="java.lang.String" value="Hide image"/>
-                <Property name="toolTipText" type="java.lang.String" value="Replace selected images by fully transparent ones"/>
+                <Property name="text" type="java.lang.String" value="Hide picture (for name)"/>
+                <Property name="toolTipText" type="java.lang.String" value="Replace selected named images by fully transparent ones"/>
               </Properties>
               <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuEditMakeTransparentActionPerformed"/>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuEditHidePictureForNameActionPerformed"/>
+              </Events>
+            </MenuItem>
+            <MenuItem class="javax.swing.JMenuItem" name="menuEditHidePictureForImage">
+              <Properties>
+                <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
+                  <Image iconType="3" name="/icons/emotion_ghost_slow.png"/>
+                </Property>
+                <Property name="text" type="java.lang.String" value="Hide picture (for image)"/>
+                <Property name="toolTipText" type="java.lang.String" value="Find and hide picture by transparent region for its image data (slow)"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuEditHidePictureForImageActionPerformed"/>
               </Events>
             </MenuItem>
           </SubComponents>
