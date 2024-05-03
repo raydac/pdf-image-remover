@@ -469,7 +469,9 @@ public class MainFrame extends javax.swing.JFrame {
                     this.documentFile = this.lastOpenedFile;
                     this.saveRequired = false;
                     this.updateTitle();
+                    this.log("Loaded file: " + this.lastOpenedFile.getName());
                 } catch (IOException ex) {
+                    this.log("Error load file: " + this.lastOpenedFile.getName(), ex);
                     JOptionPane.showMessageDialog(this, "Can't load file for error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
                 } finally {
                     this.updateVisiblePdfPage();
@@ -498,6 +500,8 @@ public class MainFrame extends javax.swing.JFrame {
     }
 
     private int replaceImage(final PDDocument document, final List<Integer> pageIndexes, final List<ImageNamePair> images, final BufferedImage image) throws IOException {
+        this.log("Request replaceImage for " + images.size() + " pair(s) and for " + pageIndexes.size() + " page(s)");
+
         final ImageFinderStreamEngine finder = new ImageFinderStreamEngine();
 
         int counter = 0;
@@ -506,6 +510,7 @@ public class MainFrame extends javax.swing.JFrame {
             p.targetImage = LosslessFactory.createFromImage(document, image == null ? new BufferedImage(p.image.getWidth(), p.image.getHeight(), BufferedImage.TYPE_INT_ARGB) : image);
         }
 
+        int total = 0;
         for (final Integer pageIndex : pageIndexes) {
             PDPage page = document.getPage(pageIndex);
             final Map<COSName, ImageFinderStreamEngine.FoundImage> foundImages = finder.findImages(page);
@@ -516,7 +521,9 @@ public class MainFrame extends javax.swing.JFrame {
                     counter++;
                 }
             }
+            total++;
         }
+        this.log("replaceImage found name of requested image(s) on " + counter + " page(s) (from " + total + ')');
         return counter;
     }
 
@@ -588,7 +595,9 @@ public class MainFrame extends javax.swing.JFrame {
                     this.document.save(targetFile);
                     this.saveRequired = false;
                     this.updateTitle();
+                    this.log("Saved file: " + targetFile.getName());
                 } catch (IOException ex) {
+                    this.log("Error save file: " + targetFile.getName(), ex);
                     ex.printStackTrace();
                     JOptionPane.showMessageDialog(this, "Can't save file for error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
                 }
