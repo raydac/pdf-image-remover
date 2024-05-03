@@ -407,8 +407,8 @@ public class MainFrame extends javax.swing.JFrame {
         });
 
         menuEditShowImage.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/image.png"))); // NOI18N
-        menuEditShowImage.setText("Show picture");
-        menuEditShowImage.setToolTipText("Show selected picture in separated dialog");
+        menuEditShowImage.setText("Show image");
+        menuEditShowImage.setToolTipText("Show focused image");
         menuEditShowImage.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 menuEditShowImageActionPerformed(evt);
@@ -417,8 +417,8 @@ public class MainFrame extends javax.swing.JFrame {
         menuEdit.add(menuEditShowImage);
 
         menuEditReplaceByFileForName.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/table_replace.png"))); // NOI18N
-        menuEditReplaceByFileForName.setText("Replace by file (for name)");
-        menuEditReplaceByFileForName.setToolTipText("Find and replace selected picture in the dicument by its name");
+        menuEditReplaceByFileForName.setText("Replace by name");
+        menuEditReplaceByFileForName.setToolTipText("Replace image by another image for name of element");
         menuEditReplaceByFileForName.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 menuEditReplaceByFileForNameActionPerformed(evt);
@@ -427,8 +427,8 @@ public class MainFrame extends javax.swing.JFrame {
         menuEdit.add(menuEditReplaceByFileForName);
 
         menuEditReplaceByFileForImage.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/table_replace_slow.png"))); // NOI18N
-        menuEditReplaceByFileForImage.setText("Replace by file (for image)");
-        menuEditReplaceByFileForImage.setToolTipText("Find and hide picture by transparent region for its name");
+        menuEditReplaceByFileForImage.setText("Replace by image");
+        menuEditReplaceByFileForImage.setToolTipText("Replace image by another image for its image data");
         menuEditReplaceByFileForImage.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 menuEditReplaceByFileForImageActionPerformed(evt);
@@ -437,8 +437,8 @@ public class MainFrame extends javax.swing.JFrame {
         menuEdit.add(menuEditReplaceByFileForImage);
 
         menuEditHidePictureForName.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/emotion_ghost.png"))); // NOI18N
-        menuEditHidePictureForName.setText("Hide picture (for name)");
-        menuEditHidePictureForName.setToolTipText("Replace selected named images by fully transparent ones");
+        menuEditHidePictureForName.setText("Hide by name");
+        menuEditHidePictureForName.setToolTipText("Hide image element for its name");
         menuEditHidePictureForName.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 menuEditHidePictureForNameActionPerformed(evt);
@@ -447,8 +447,8 @@ public class MainFrame extends javax.swing.JFrame {
         menuEdit.add(menuEditHidePictureForName);
 
         menuEditHidePictureForImage.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/emotion_ghost_slow.png"))); // NOI18N
-        menuEditHidePictureForImage.setText("Hide picture (for image)");
-        menuEditHidePictureForImage.setToolTipText("Find and hide picture by transparent region for its image data (slow)");
+        menuEditHidePictureForImage.setText("Hide by image");
+        menuEditHidePictureForImage.setToolTipText("Hide image element by its image data");
         menuEditHidePictureForImage.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 menuEditHidePictureForImageActionPerformed(evt);
@@ -504,11 +504,13 @@ public class MainFrame extends javax.swing.JFrame {
     private void activateProgress() {
         this.progressBar.setValue(0);
         this.getGlassPane().setVisible(true);
+        this.mainMenu.setEnabled(false);
     }
 
     private void deactivateProgress() {
         this.progressBar.setValue(0);
         this.getGlassPane().setVisible(false);
+        this.mainMenu.setEnabled(true);
     }
 
     private void menuFileOpenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuFileOpenActionPerformed
@@ -822,7 +824,7 @@ public class MainFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_menuEditMenuSelected
 
     private void menuHelpAboutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuHelpAboutActionPerformed
-        final JHtmlLabel label = new JHtmlLabel("<html><b>PDF image remover</b><br><b>Version:</b> 1.0.1<br><b>Author:</b> Igor Maznitsa<br><a href=\"https://github.com/raydac/pdf-image-remover\">https://github.com/raydac/pdf-image-remover</a></html>");
+        final JHtmlLabel label = new JHtmlLabel("<html><b>PDF image remover</b><br><b>Version:</b> 1.1.0<br><b>Author:</b> Igor Maznitsa<br><a href=\"https://github.com/raydac/pdf-image-remover\">https://github.com/raydac/pdf-image-remover</a></html>");
         label.addLinkListener((JHtmlLabel source, String link) -> {
             try {
                 Desktop.getDesktop().browse(new URI(link));

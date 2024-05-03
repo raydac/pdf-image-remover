@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.mycompany.pdfobjectremover</groupId>
     <artifactId>pdf-image-remover</artifactId>
-    <version>1.0.1-SNAPSHOT</version>
+    <version>1.1.0-SNAPSHOT</version>
 
     <name>pdf-image-remover</name>
 
@@ -35,7 +35,7 @@
             <name>Igor Maznitsa</name>
             <email>rrg4400@gmail.com</email>
             <url>http://www.igormaznitsa.com</url>
-            <timezone>+2</timezone>
+            <timezone>+3</timezone>
             <roles>
                 <role>author</role>
             </roles>
@@ -119,8 +119,8 @@
                                 <mutexName>sciaretoeditor</mutexName>
                             </singleInstance>
                             <versionInfo>
-                                <fileVersion>1.0.1.0</fileVersion>
-                                <productVersion>1.0.1.0</productVersion>
+                                <fileVersion>1.1.0.0</fileVersion>
+                                <productVersion>1.1.0.0</productVersion>
                                 <txtFileVersion>${project.version}</txtFileVersion>
                                 <fileDescription>Pdf Image Remover</fileDescription>
                                 <copyright>2022-2024 Igor Maznitsa</copyright>
@@ -203,6 +203,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
+                <version>3.4.1</version>
                 <executions>
                     <execution>
                         <id>enforcer-verify</id>
@@ -238,6 +239,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
+                <version>3.5.1</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
