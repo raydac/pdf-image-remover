@@ -258,7 +258,6 @@ public class MainFrame extends javax.swing.JFrame {
 
         this.progressBar = new JProgressBar(0, 100);
         this.progressBar.setStringPainted(true);
-        this.progressBar.setString("Please wait");
 
         glassPanel.add(Box.createGlue());
         glassPanel.add(Box.createGlue());
@@ -508,7 +507,7 @@ public class MainFrame extends javax.swing.JFrame {
     }
 
     private void activateProgress() {
-        this.progressBar.setValue(0);
+        this.updateProgressBar(0);
         this.getGlassPane().setVisible(true);
         this.mainMenu.setEnabled(false);
     }
@@ -765,9 +764,7 @@ public class MainFrame extends javax.swing.JFrame {
 
         try {
             final SwingWorker<Integer, Integer> worker = makeSwingWorkerReplaceImage(document, pages, pairs, null, byImage,
-                    (progress) -> {
-                        this.progressBar.setValue(progress);
-                    },
+                    this::updateProgressBar,
                     (list) -> {
 
                     },
@@ -889,6 +886,11 @@ public class MainFrame extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_menuEditShowImageActionPerformed
 
+    private void updateProgressBar(final int progress) {
+        this.progressBar.setString("Processed " + progress + '%');
+        this.progressBar.setValue(progress);
+    }
+    
     private void commonFindAndReplace(final boolean byImage) throws IOException {
         final JFileChooser fileChooser = new JFileChooser(this.lastImportedImageFile);
         fileChooser.setFileFilter(MainFrame.FILEFILTER_PNG);
@@ -926,7 +928,7 @@ public class MainFrame extends javax.swing.JFrame {
             }
 
             final SwingWorker<Integer, Integer> worker = makeSwingWorkerReplaceImage(this.document, pages, pairs, loadedImage, byImage,
-                    (progress) -> this.progressBar.setValue(progress),
+                    this::updateProgressBar,
                     (list) -> {
                     },
                     (error, counter) -> {
