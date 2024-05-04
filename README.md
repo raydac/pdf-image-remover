@@ -27,7 +27,7 @@ Pre-built starters for different OS:
 
 If you want start the application manually with JDK then use JAR file and start it through command line:
 ```
-java -jar pdf-image-remover-1.0.0.jar
+java -jar pdf-image-remover-1.1.0.jar
 ```
 
 # How to use?
