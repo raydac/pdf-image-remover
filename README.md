@@ -6,10 +6,10 @@
 
 # What is it?
 
-Small GUI utility, it allows manupulate images in PDF documents:
- - hide selected ones (for one page or for all pages)
+Small GUI utility, it allows manipulate images in PDF documents:
+ - hide selected ones (for one page or for all pages) by its name or its image data
  - extract selected image from document and save it as image file
- - replace selected images by image loaded from file (for one page or for all pages)
+ - replace selected images by image loaded from file (for one page or for all pages) by its image name or its image data
 
 ![screenshot](docs/screenshot.png)   
 
@@ -20,10 +20,10 @@ The utility is written in pure Java and requires pre-installed JDK 9+ for its wo
 You can download starter for your OS but also you can download juat pure JAR archive.
 
 Pre-built starters for different OS:
- - [for Windows](https://github.com/raydac/pdf-image-remover/releases/download/1.0.0/pdf-image-remover-1.0.0.exe)
- - [for Linux/Unix](https://github.com/raydac/pdf-image-remover/releases/download/1.0.0/pdf-image-remover-1.0.0.sh)
- - [for MacOS](https://github.com/raydac/pdf-image-remover/releases/download/1.0.0/pdf-image-remover_1.0.0.dmg)
- - [pure Java](https://github.com/raydac/pdf-image-remover/releases/download/1.0.0/pdf-image-remover-1.0.0.jar)
+ - [for Windows](https://github.com/raydac/pdf-image-remover/releases/download/1.1.0/pdf-image-remover-1.1.0.exe)
+ - [for Linux/Unix](https://github.com/raydac/pdf-image-remover/releases/download/1.1.0/pdf-image-remover-1.1.0.sh)
+ - [for MacOS](https://github.com/raydac/pdf-image-remover/releases/download/1.1.0/pdf-image-remover_1.1.0.dmg)
+ - [pure Java](https://github.com/raydac/pdf-image-remover/releases/download/1.1.0/pdf-image-remover-1.1.0.jar)
 
 If you want start the application manually with JDK then use JAR file and start it through command line:
 ```
