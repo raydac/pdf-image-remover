@@ -424,7 +424,7 @@ public class MainFrame extends javax.swing.JFrame {
 
         menuEditReplaceByFileForName.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/table_replace.png"))); // NOI18N
         menuEditReplaceByFileForName.setText("Replace by name");
-        menuEditReplaceByFileForName.setToolTipText("Replace image by another image for name of element");
+        menuEditReplaceByFileForName.setToolTipText("Find images by names and replace by new image");
         menuEditReplaceByFileForName.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 menuEditReplaceByFileForNameActionPerformed(evt);
@@ -434,7 +434,7 @@ public class MainFrame extends javax.swing.JFrame {
 
         menuEditReplaceByFileForImage.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/table_replace_slow.png"))); // NOI18N
         menuEditReplaceByFileForImage.setText("Replace by image");
-        menuEditReplaceByFileForImage.setToolTipText("Replace image by another image for its image data");
+        menuEditReplaceByFileForImage.setToolTipText("Find images by graphics data and replace by new images (can be slow)");
         menuEditReplaceByFileForImage.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 menuEditReplaceByFileForImageActionPerformed(evt);
@@ -444,7 +444,7 @@ public class MainFrame extends javax.swing.JFrame {
 
         menuEditHidePictureForName.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/emotion_ghost.png"))); // NOI18N
         menuEditHidePictureForName.setText("Hide by name");
-        menuEditHidePictureForName.setToolTipText("Hide image element for its name");
+        menuEditHidePictureForName.setToolTipText("Find images by names and replace by transparent areas");
         menuEditHidePictureForName.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 menuEditHidePictureForNameActionPerformed(evt);
@@ -454,7 +454,7 @@ public class MainFrame extends javax.swing.JFrame {
 
         menuEditHidePictureForImage.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/emotion_ghost_slow.png"))); // NOI18N
         menuEditHidePictureForImage.setText("Hide by image");
-        menuEditHidePictureForImage.setToolTipText("Hide image element by its image data");
+        menuEditHidePictureForImage.setToolTipText("Find images by graphics data and replace by transparent areas (can be slow)");
         menuEditHidePictureForImage.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 menuEditHidePictureForImageActionPerformed(evt);

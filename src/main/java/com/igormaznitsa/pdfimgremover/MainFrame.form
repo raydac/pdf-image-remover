@@ -81,7 +81,7 @@
                   <Image iconType="3" name="/icons/table_replace.png"/>
                 </Property>
                 <Property name="text" type="java.lang.String" value="Replace by name"/>
-                <Property name="toolTipText" type="java.lang.String" value="Replace image by another image for name of element"/>
+                <Property name="toolTipText" type="java.lang.String" value="Find images by names and replace by new image"/>
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuEditReplaceByFileForNameActionPerformed"/>
@@ -93,7 +93,7 @@
                   <Image iconType="3" name="/icons/table_replace_slow.png"/>
                 </Property>
                 <Property name="text" type="java.lang.String" value="Replace by image"/>
-                <Property name="toolTipText" type="java.lang.String" value="Replace image by another image for its image data"/>
+                <Property name="toolTipText" type="java.lang.String" value="Find images by graphics data and replace by new images (can be slow)"/>
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuEditReplaceByFileForImageActionPerformed"/>
@@ -105,7 +105,7 @@
                   <Image iconType="3" name="/icons/emotion_ghost.png"/>
                 </Property>
                 <Property name="text" type="java.lang.String" value="Hide by name"/>
-                <Property name="toolTipText" type="java.lang.String" value="Hide image element for its name"/>
+                <Property name="toolTipText" type="java.lang.String" value="Find images by names and replace by transparent areas"/>
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuEditHidePictureForNameActionPerformed"/>
@@ -117,7 +117,7 @@
                   <Image iconType="3" name="/icons/emotion_ghost_slow.png"/>
                 </Property>
                 <Property name="text" type="java.lang.String" value="Hide by image"/>
-                <Property name="toolTipText" type="java.lang.String" value="Hide image element by its image data"/>
+                <Property name="toolTipText" type="java.lang.String" value="Find images by graphics data and replace by transparent areas (can be slow)"/>
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuEditHidePictureForImageActionPerformed"/>
