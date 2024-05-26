@@ -564,6 +564,15 @@ public class MainFrame extends javax.swing.JFrame {
         this.updateVisiblePdfPage();
     }//GEN-LAST:event_spinnerPageStateChanged
 
+    private static BufferedImage extractRawImage(final PDImageXObject ximage) throws IOException {
+        if (ximage == null) return null;
+        BufferedImage result = ximage.getRawImage();
+        if (result == null) {
+            result = ximage.getColorSpace().toRGBImage(ximage.getRawRaster());
+        }
+        return result;
+    }
+    
     private static class ImageNamePair {
 
         private final COSName name;
@@ -575,11 +584,11 @@ public class MainFrame extends javax.swing.JFrame {
             this.name = name;
             this.image = image;
             this.targetImage = null;
-            this.rawImage = image.getRawImage();
+            this.rawImage = extractRawImage(image);
         }
 
         boolean isSimilarToImage(final PDImageXObject thatImage) throws IOException {
-            final BufferedImage thatRawImage = thatImage.getRawImage();
+            final BufferedImage thatRawImage = extractRawImage(thatImage);
             if (thatRawImage != null && this.rawImage != null) {
 
                 return thatRawImage == this.rawImage
@@ -590,6 +599,12 @@ public class MainFrame extends javax.swing.JFrame {
             }
             return false;
         }
+
+        @Override
+        public String toString() {
+            return "ImageNamePair{" + "name=" + name + ", image=" + image + ", rawImage=" + rawImage + '}';
+        }
+        
     }
 
     private static boolean isDataBufferEquals(final DataBuffer one, final DataBuffer two) {
