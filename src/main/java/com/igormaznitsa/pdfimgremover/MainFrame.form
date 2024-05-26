@@ -104,7 +104,7 @@
                 <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
                   <Image iconType="3" name="/icons/emotion_ghost.png"/>
                 </Property>
-                <Property name="text" type="java.lang.String" value="Hide by name"/>
+                <Property name="text" type="java.lang.String" value="Find by name and hide"/>
                 <Property name="toolTipText" type="java.lang.String" value="Find images by names and replace by transparent areas"/>
               </Properties>
               <Events>
@@ -116,7 +116,7 @@
                 <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
                   <Image iconType="3" name="/icons/emotion_ghost_slow.png"/>
                 </Property>
-                <Property name="text" type="java.lang.String" value="Hide by image"/>
+                <Property name="text" type="java.lang.String" value="Find by image and hide"/>
                 <Property name="toolTipText" type="java.lang.String" value="Find images by graphics data and replace by transparent areas (can be slow)"/>
               </Properties>
               <Events>

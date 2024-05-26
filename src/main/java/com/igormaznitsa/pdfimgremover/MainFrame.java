@@ -442,7 +442,7 @@ public class MainFrame extends javax.swing.JFrame {
         menuEdit.add(menuEditReplaceByFileForImage);
 
         menuEditHidePictureForName.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/emotion_ghost.png"))); // NOI18N
-        menuEditHidePictureForName.setText("Hide by name");
+        menuEditHidePictureForName.setText("Find by name and hide");
         menuEditHidePictureForName.setToolTipText("Find images by names and replace by transparent areas");
         menuEditHidePictureForName.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -452,7 +452,7 @@ public class MainFrame extends javax.swing.JFrame {
         menuEdit.add(menuEditHidePictureForName);
 
         menuEditHidePictureForImage.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/emotion_ghost_slow.png"))); // NOI18N
-        menuEditHidePictureForImage.setText("Hide by image");
+        menuEditHidePictureForImage.setText("Find by image and hide");
         menuEditHidePictureForImage.setToolTipText("Find images by graphics data and replace by transparent areas (can be slow)");
         menuEditHidePictureForImage.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -862,7 +862,7 @@ public class MainFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_menuEditMenuSelected
 
     private void menuHelpAboutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuHelpAboutActionPerformed
-        final JHtmlLabel label = new JHtmlLabel("<html><b>PDF image remover</b><br><b>Version:</b> 1.1.0<br><b>Author:</b> Igor Maznitsa<br><a href=\"https://github.com/raydac/pdf-image-remover\">https://github.com/raydac/pdf-image-remover</a></html>");
+        final JHtmlLabel label = new JHtmlLabel("<html><b>PDF image remover</b><br><b>Version:</b> 1.1.1<br><b>Author:</b> Igor Maznitsa<br><a href=\"https://github.com/raydac/pdf-image-remover\">https://github.com/raydac/pdf-image-remover</a></html>");
         label.addLinkListener((JHtmlLabel source, String link) -> {
             try {
                 Desktop.getDesktop().browse(new URI(link));
