@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.mycompany.pdfobjectremover</groupId>
     <artifactId>pdf-image-remover</artifactId>
-    <version>1.1.0</version>
+    <version>1.1.1-SNAPSHOT</version>
 
     <name>pdf-image-remover</name>
 
@@ -119,8 +119,8 @@
                                 <mutexName>sciaretoeditor</mutexName>
                             </singleInstance>
                             <versionInfo>
-                                <fileVersion>1.1.0.0</fileVersion>
-                                <productVersion>1.1.0.0</productVersion>
+                                <fileVersion>1.1.1.0</fileVersion>
+                                <productVersion>1.1.1.0</productVersion>
                                 <txtFileVersion>${project.version}</txtFileVersion>
                                 <fileDescription>Pdf Image Remover</fileDescription>
                                 <copyright>2022-2024 Igor Maznitsa</copyright>
