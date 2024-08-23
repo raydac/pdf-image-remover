@@ -4,7 +4,7 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -22,6 +22,11 @@ import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.UnsupportedFlavorException;
+import java.awt.dnd.DnDConstants;
+import java.awt.dnd.DropTarget;
+import java.awt.dnd.DropTargetDropEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -272,6 +277,45 @@ public class MainFrame extends javax.swing.JFrame {
         glassPanel.add(Box.createGlue());
 
         this.setGlassPane(glassPanel);
+
+        this.mainScrollPane.setDropTarget(new DropTarget(this.mainScrollPane, DnDConstants.ACTION_COPY_OR_MOVE, null) {
+            @Override
+            public synchronized void drop(DropTargetDropEvent dtde) {
+                if (dtde.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
+                    try {
+                        dtde.acceptDrop(DnDConstants.ACTION_COPY_OR_MOVE);
+                        final File file = extractDropFile(dtde);
+                        MainFrame.this.log("drop: " + dtde);
+                        dtde.dropComplete(true);
+                        if (file != null && file.isFile()) {
+                            if (MainFrame.this.saveRequired && JOptionPane.showConfirmDialog(MainFrame.this, "Current document is unsaved. Open new file?", "Unsaved changes", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE) == JOptionPane.CANCEL_OPTION) {
+                                return;
+                            }
+                            MainFrame.this.openFile(file);
+                        }
+                    } catch (Exception ex) {
+                        MainFrame.this.log("Error during DnD: " + ex.getMessage(), ex);
+                    }
+                }
+            }
+        });
+    }
+
+    private static File extractDropFile(final DropTargetDropEvent dtde) throws Exception {
+        if (dtde == null) {
+            return null;
+        }
+        try {
+            java.util.List<File> files = null;
+            final Object objectToDrop = dtde.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
+            if (objectToDrop instanceof java.util.List) {
+                files = (java.util.List<File>) objectToDrop;
+            }
+
+            return files == null || files.isEmpty() ? null : files.get(0);
+        } catch (UnsupportedFlavorException ex) {
+            return null;
+        }
     }
 
     private final JProgressBar progressBar;
@@ -518,6 +562,32 @@ public class MainFrame extends javax.swing.JFrame {
         this.mainMenu.setEnabled(true);
     }
 
+    private boolean openFile(final File file) {
+        this.lastOpenedFile = file;
+        try {
+            if (this.document != null) {
+                this.document.close();
+            }
+
+            this.document = Loader.loadPDF(this.lastOpenedFile);
+            this.renderer = new PDFRenderer(this.document);
+            this.spinnerPage.setModel(new SpinnerNumberModel(1, 1, document.getNumberOfPages(), 1));
+            this.spinnerPage.setEnabled(true);
+            this.labelPageNumber.setText("/ " + document.getNumberOfPages());
+            this.documentFile = this.lastOpenedFile;
+            this.saveRequired = false;
+            this.updateTitle();
+            this.log("Loaded file: " + this.lastOpenedFile.getName());
+            return true;
+        } catch (IOException ex) {
+            this.log("Error load file: " + this.lastOpenedFile.getName(), ex);
+            JOptionPane.showMessageDialog(this, "Can't load file for error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return false;
+        } finally {
+            this.updateVisiblePdfPage();
+        }
+    }
+
     private void menuFileOpenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuFileOpenActionPerformed
         this.log("Pressed menuFileOpenActionPerformed");
 
@@ -533,27 +603,7 @@ public class MainFrame extends javax.swing.JFrame {
             fileOpenDialog.setDialogTitle("Open PDF document");
 
             if (fileOpenDialog.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-                this.lastOpenedFile = fileOpenDialog.getSelectedFile();
-                try {
-                    if (this.document != null) {
-                        this.document.close();
-                    }
-
-                    this.document = Loader.loadPDF(this.lastOpenedFile);
-                    this.renderer = new PDFRenderer(this.document);
-                    this.spinnerPage.setModel(new SpinnerNumberModel(1, 1, document.getNumberOfPages(), 1));
-                    this.spinnerPage.setEnabled(true);
-                    this.labelPageNumber.setText("/ " + document.getNumberOfPages());
-                    this.documentFile = this.lastOpenedFile;
-                    this.saveRequired = false;
-                    this.updateTitle();
-                    this.log("Loaded file: " + this.lastOpenedFile.getName());
-                } catch (IOException ex) {
-                    this.log("Error load file: " + this.lastOpenedFile.getName(), ex);
-                    JOptionPane.showMessageDialog(this, "Can't load file for error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-                } finally {
-                    this.updateVisiblePdfPage();
-                }
+                this.openFile(fileOpenDialog.getSelectedFile());
             }
         } catch (Exception ex) {
             this.log("Error during menuFileOpenActionPerformed", ex);
@@ -565,14 +615,16 @@ public class MainFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_spinnerPageStateChanged
 
     private static BufferedImage extractRawImage(final PDImageXObject ximage) throws IOException {
-        if (ximage == null) return null;
+        if (ximage == null) {
+            return null;
+        }
         BufferedImage result = ximage.getRawImage();
         if (result == null) {
             result = ximage.getColorSpace().toRGBImage(ximage.getRawRaster());
         }
         return result;
     }
-    
+
     private static class ImageNamePair {
 
         private final COSName name;
@@ -604,7 +656,7 @@ public class MainFrame extends javax.swing.JFrame {
         public String toString() {
             return "ImageNamePair{" + "name=" + name + ", image=" + image + ", rawImage=" + rawImage + '}';
         }
-        
+
     }
 
     private static boolean isDataBufferEquals(final DataBuffer one, final DataBuffer two) {
@@ -615,7 +667,7 @@ public class MainFrame extends javax.swing.JFrame {
         if (one.getClass().equals(two.getClass())
                 && one.getNumBanks() == two.getNumBanks()
                 && one.getSize() == two.getSize()) {
-            
+
             final int size = one.getSize();
             final int[] offsets1 = one.getOffsets();
             final int[] offsets2 = two.getOffsets();
@@ -812,9 +864,7 @@ public class MainFrame extends javax.swing.JFrame {
         this.doSearchAndReplacement(false);
     }//GEN-LAST:event_menuEditHidePictureForNameActionPerformed
 
-    private void menuFileSaveAsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuFileSaveAsActionPerformed
-        this.log("Pressed menuFileSaveAsActionPerformed");
-
+    private boolean saveAsFile() {
         try {
             final JFileChooser fileSaveDialog = new JFileChooser(this.lastSavedFile);
             fileSaveDialog.setFileFilter(FILEFILTER_PDF);
@@ -829,8 +879,9 @@ public class MainFrame extends javax.swing.JFrame {
                 }
                 this.lastSavedFile = targetFile;
 
-                if (targetFile.exists() && JOptionPane.showConfirmDialog(this, "Override file " + targetFile.getName() + "?", "File exists", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE) == JOptionPane.CANCEL_OPTION) {
-                    return;
+                if (targetFile.exists()
+                        && JOptionPane.showConfirmDialog(this, "Override file " + targetFile.getName() + "?", "File exists", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE) == JOptionPane.CANCEL_OPTION) {
+                    return false;
                 }
 
                 try {
@@ -838,6 +889,7 @@ public class MainFrame extends javax.swing.JFrame {
                     this.saveRequired = false;
                     this.updateTitle();
                     this.log("Saved file: " + targetFile.getName());
+                    return true;
                 } catch (IOException ex) {
                     this.log("Error save file: " + targetFile.getName(), ex);
                     ex.printStackTrace();
@@ -846,7 +898,14 @@ public class MainFrame extends javax.swing.JFrame {
             }
         } catch (Exception ex) {
             this.log("Error during menuFileSaveAsActionPerformed", ex);
+            return false;
         }
+        return false;
+    }
+
+    private void menuFileSaveAsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuFileSaveAsActionPerformed
+        this.log("Pressed menuFileSaveAsActionPerformed");
+        saveAsFile();
     }//GEN-LAST:event_menuFileSaveAsActionPerformed
 
     private void menuEditMenuSelected(javax.swing.event.MenuEvent evt) {//GEN-FIRST:event_menuEditMenuSelected
@@ -905,7 +964,7 @@ public class MainFrame extends javax.swing.JFrame {
         this.progressBar.setString("Processed " + progress + '%');
         this.progressBar.setValue(progress);
     }
-    
+
     private void commonFindAndReplace(final boolean byImage) throws IOException {
         final JFileChooser fileChooser = new JFileChooser(this.lastImportedImageFile);
         fileChooser.setFileFilter(MainFrame.FILEFILTER_PNG);
