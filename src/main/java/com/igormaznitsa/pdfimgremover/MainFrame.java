@@ -384,22 +384,35 @@ public class MainFrame extends javax.swing.JFrame {
         toolpanelPages.add(jLabel1, gridBagConstraints);
 
         spinnerPage.setEnabled(false);
+        spinnerPage.setMinimumSize(new java.awt.Dimension(64, 28));
+        spinnerPage.setName(""); // NOI18N
         spinnerPage.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
                 spinnerPageStateChanged(evt);
             }
         });
-        toolpanelPages.add(spinnerPage, new java.awt.GridBagConstraints());
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.ipadx = 48;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        toolpanelPages.add(spinnerPage, gridBagConstraints);
 
         labelPageNumber.setText(" / ---");
-        toolpanelPages.add(labelPageNumber, new java.awt.GridBagConstraints());
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 32);
+        toolpanelPages.add(labelPageNumber, gridBagConstraints);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 4;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.weightx = 1000.0;
         toolpanelPages.add(filler1, gridBagConstraints);
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 4;
+        gridBagConstraints.gridx = 5;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 16);
