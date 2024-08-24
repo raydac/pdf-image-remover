@@ -61,13 +61,17 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import javax.imageio.ImageIO;
 import javax.swing.Box;
+import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.JRadioButtonMenuItem;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
+import javax.swing.UIManager;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.tree.TreePath;
 import org.apache.pdfbox.Loader;
@@ -135,6 +139,7 @@ public class MainFrame extends javax.swing.JFrame {
 
     public MainFrame() {
         initComponents();
+        this.initLookAndFillMenu();
 
         PrintWriter writer = null;
 
@@ -299,6 +304,8 @@ public class MainFrame extends javax.swing.JFrame {
                 }
             }
         });
+
+        this.resetDocument();
     }
 
     private static File extractDropFile(final DropTargetDropEvent dtde) throws Exception {
@@ -347,12 +354,13 @@ public class MainFrame extends javax.swing.JFrame {
         menuEditReplaceByFileForImage = new javax.swing.JMenuItem();
         menuEditHidePictureForName = new javax.swing.JMenuItem();
         menuEditHidePictureForImage = new javax.swing.JMenuItem();
+        menuLookAndFeel = new javax.swing.JMenu();
         menuHelp = new javax.swing.JMenu();
         menuHelpAbout = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
 
-        scrollPanelTree.setBorder(javax.swing.BorderFactory.createTitledBorder("Detected images on the page"));
+        scrollPanelTree.setBorder(javax.swing.BorderFactory.createTitledBorder("Current page images"));
 
         pageTree.setModel(null);
         pageTree.setRootVisible(false);
@@ -507,6 +515,9 @@ public class MainFrame extends javax.swing.JFrame {
 
         mainMenu.add(menuEdit);
 
+        menuLookAndFeel.setText("Look & Feel");
+        mainMenu.add(menuLookAndFeel);
+
         menuHelp.setText("Help");
         menuHelp.setToolTipText("Show info about application");
 
@@ -535,9 +546,6 @@ public class MainFrame extends javax.swing.JFrame {
     private void updateVisiblePdfPage() {
         Integer pageNumber = (Integer) ((SpinnerNumberModel) this.spinnerPage.getModel()).getValue() - 1;
         if (this.document == null) {
-            this.mainScrollPane.removeAll();
-            this.mainScrollPane.invalidate();
-            this.mainScrollPane.repaint();
             this.pageTree.setModel(new PageTreeModel(null, null));
         } else {
             try {
@@ -548,6 +556,8 @@ public class MainFrame extends javax.swing.JFrame {
                 this.pageTree.setModel(new PageTreeModel(this.document, this.document.getPage(pageNumber)));
             }
         }
+        this.mainScrollPane.invalidate();
+        this.mainScrollPane.repaint();
     }
 
     private void activateProgress() {
@@ -562,6 +572,48 @@ public class MainFrame extends javax.swing.JFrame {
         this.mainMenu.setEnabled(true);
     }
 
+    private void initLookAndFillMenu() {
+        final String currentUiClassName = UIManager.getLookAndFeel().getClass().getCanonicalName();
+
+        final ButtonGroup group = new ButtonGroup();
+        Stream.of(UIManager.getInstalledLookAndFeels())
+                .sorted((a, b) -> a.getName().compareTo(b.getName()))
+                .forEach(ui -> {
+                    final JRadioButtonMenuItem menuItem = new JRadioButtonMenuItem(ui.getName(), ui.getClassName().equals(currentUiClassName));
+                    group.add(menuItem);
+                    menuItem.addActionListener(l -> {
+                        try {
+                            UIManager.setLookAndFeel(ui.getClassName());
+                            ApplicationPreferences.INSTANCE.setKey(ApplicationPreferences.PROPERTY_LOOK_AND_FEEL, ui.getClassName());
+                        } catch (Exception ex) {
+                            this.log("Can't set look and feel", ex);
+                        } finally {
+                            SwingUtilities.updateComponentTreeUI(this);
+                            this.pack();
+                        }
+                    });
+                    this.menuLookAndFeel.add(menuItem);
+                });
+    }
+
+    private void resetDocument() {
+        this.document = null;
+        this.renderer = null;
+        this.documentFile = null;
+        this.saveRequired = false;
+        this.scalableImage.setImage(null, true);
+
+        final SpinnerNumberModel spinnerModel = new SpinnerNumberModel(0, 0, 0, 0);
+        this.spinnerPage.setModel(spinnerModel);
+
+        this.spinnerPage.setEnabled(false);
+        this.spinnerPage.setValue(0);
+        this.labelPageNumber.setText(" / ---");
+
+        this.updateTitle();
+        this.updateVisiblePdfPage();
+    }
+
     private boolean openFile(final File file) {
         this.lastOpenedFile = file;
         try {
@@ -571,9 +623,12 @@ public class MainFrame extends javax.swing.JFrame {
 
             this.document = Loader.loadPDF(this.lastOpenedFile);
             this.renderer = new PDFRenderer(this.document);
-            this.spinnerPage.setModel(new SpinnerNumberModel(1, 1, document.getNumberOfPages(), 1));
+
+            final SpinnerNumberModel spinnerModel = new SpinnerNumberModel(1, 1, document.getNumberOfPages(), 1);
+            this.spinnerPage.setModel(spinnerModel);
             this.spinnerPage.setEnabled(true);
-            this.labelPageNumber.setText("/ " + document.getNumberOfPages());
+
+            this.labelPageNumber.setText(" / " + String.format("%d", document.getNumberOfPages()));
             this.documentFile = this.lastOpenedFile;
             this.saveRequired = false;
             this.updateTitle();
@@ -582,6 +637,7 @@ public class MainFrame extends javax.swing.JFrame {
         } catch (IOException ex) {
             this.log("Error load file: " + this.lastOpenedFile.getName(), ex);
             JOptionPane.showMessageDialog(this, "Can't load file for error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            this.resetDocument();
             return false;
         } finally {
             this.updateVisiblePdfPage();
@@ -1065,6 +1121,7 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JPopupMenu.Separator menuFileSeparator;
     private javax.swing.JMenu menuHelp;
     private javax.swing.JMenuItem menuHelpAbout;
+    private javax.swing.JMenu menuLookAndFeel;
     private javax.swing.JTree pageTree;
     private com.igormaznitsa.pdfimgremover.ScaleStatusIndicator scaleStatusIndicator;
     private javax.swing.JScrollPane scrollPanelTree;
