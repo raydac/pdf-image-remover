@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.mycompany.pdfobjectremover</groupId>
     <artifactId>pdf-image-remover</artifactId>
-    <version>1.1.1-SNAPSHOT</version>
+    <version>1.1.1</version>
 
     <name>pdf-image-remover</name>
 
@@ -122,7 +122,7 @@
                         <configuration>
                             <headerType>gui</headerType>
                             <outfile>${project.build.directory}/${app.name}.exe</outfile>
-                            <downloadUrl>https://bell-sw.com/pages/downloads/#/java-11-lts</downloadUrl>
+                            <downloadUrl>https://bell-sw.com/pages/downloads/#jdk-21-lts</downloadUrl>
                             <classPath>
                                 <mainClass>com.igormaznitsa.pdfimgremover.Application</mainClass>
                                 <preCp>anything</preCp>
