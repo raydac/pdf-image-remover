@@ -216,12 +216,13 @@ final class ScalableImage extends JComponent implements Scalable {
     @Override
     public Dimension getPreferredSize() {
         if (image == null) {
-            return new Dimension(256, 256);
+            return new Dimension(320, 280);
         } else {
             return new Dimension(Math.round(this.image.getWidth() * this.scale), Math.round(this.image.getHeight() * this.scale));
         }
     }
 
+    @Override
     public float getScale() {
         return this.scale;
     }

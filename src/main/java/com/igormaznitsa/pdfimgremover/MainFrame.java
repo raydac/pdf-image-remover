@@ -372,6 +372,9 @@ public class MainFrame extends javax.swing.JFrame {
         scrollPanelTree.setViewportView(pageTree);
 
         splitPane.setLeftComponent(scrollPanelTree);
+
+        mainScrollPane.setMinimumSize(new java.awt.Dimension(256, 256));
+        mainScrollPane.setPreferredSize(new java.awt.Dimension(256, 256));
         splitPane.setRightComponent(mainScrollPane);
 
         getContentPane().add(splitPane, java.awt.BorderLayout.CENTER);
@@ -1016,7 +1019,9 @@ public class MainFrame extends javax.swing.JFrame {
             final TreePath path = this.pageTree.getPathForLocation(evt.getX(), evt.getY());
             if (path != null && path.getLastPathComponent() instanceof PageTreeModel.PageItem) {
                 final PageTreeModel.PageItem selectedItem = (PageTreeModel.PageItem) path.getLastPathComponent();
-                JOptionPane.showMessageDialog(this, new ImageShow(selectedItem), "Image", JOptionPane.PLAIN_MESSAGE);
+                final ImageShow selectedItemPanel = new ImageShow(selectedItem);
+                UiUtils.makeOwningDialogResizable(selectedItemPanel);
+                JOptionPane.showMessageDialog(this, selectedItemPanel, "Image", JOptionPane.PLAIN_MESSAGE);
             }
         }
     }//GEN-LAST:event_pageTreeMouseClicked
@@ -1025,7 +1030,9 @@ public class MainFrame extends javax.swing.JFrame {
         final TreePath path = this.pageTree.getSelectionPath();
         if (path != null && path.getLastPathComponent() instanceof PageTreeModel.PageItem) {
             final PageTreeModel.PageItem selectedItem = (PageTreeModel.PageItem) path.getLastPathComponent();
-            JOptionPane.showMessageDialog(this, new ImageShow(selectedItem), "Image", JOptionPane.PLAIN_MESSAGE);
+            final ImageShow selectedItemPanel = new ImageShow(selectedItem);
+            UiUtils.makeOwningDialogResizable(selectedItemPanel);
+            JOptionPane.showMessageDialog(this, selectedItemPanel, "Image", JOptionPane.PLAIN_MESSAGE);
         }
     }//GEN-LAST:event_menuEditShowImageActionPerformed
 
