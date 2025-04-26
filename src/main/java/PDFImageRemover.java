@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.igormaznitsa.pdfimgremover;
 
+import com.igormaznitsa.pdfimgremover.ApplicationPreferences;
+import com.igormaznitsa.pdfimgremover.MainFrame;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
-public class Application {
+public class PDFImageRemover {
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
