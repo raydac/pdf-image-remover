@@ -19,6 +19,7 @@ import com.igormaznitsa.pdfimgremover.ImageFinderStreamEngine.FoundImage;
 import java.awt.Color;
 import java.awt.Desktop;
 import java.awt.GridLayout;
+import java.awt.HeadlessException;
 import java.awt.Image;
 import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
@@ -349,6 +350,7 @@ public class MainFrame extends javax.swing.JFrame {
         menuFileSeparator = new javax.swing.JPopupMenu.Separator();
         menuFileExit = new javax.swing.JMenuItem();
         menuEdit = new javax.swing.JMenu();
+        menuReorderPages = new javax.swing.JMenuItem();
         menuEditShowImage = new javax.swing.JMenuItem();
         menuEditReplaceByFileForName = new javax.swing.JMenuItem();
         menuEditReplaceByFileForImage = new javax.swing.JMenuItem();
@@ -479,6 +481,15 @@ public class MainFrame extends javax.swing.JFrame {
             }
         });
 
+        menuReorderPages.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/book_edit.png"))); // NOI18N
+        menuReorderPages.setText("Reorder pages");
+        menuReorderPages.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                menuReorderPagesActionPerformed(evt);
+            }
+        });
+        menuEdit.add(menuReorderPages);
+
         menuEditShowImage.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/image.png"))); // NOI18N
         menuEditShowImage.setText("Show image");
         menuEditShowImage.setToolTipText("Show focused image");
@@ -561,8 +572,9 @@ public class MainFrame extends javax.swing.JFrame {
 
     private void updateVisiblePdfPage() {
         Integer pageNumber = (Integer) ((SpinnerNumberModel) this.spinnerPage.getModel()).getValue() - 1;
-        if (this.document == null) {
+        if (this.document == null || pageNumber < 0) {
             this.pageTree.setModel(new PageTreeModel(null, null));
+            scalableImage.setImage(null, true);
         } else {
             try {
                 scalableImage.setImage(this.renderer.renderImage(pageNumber), true);
@@ -630,21 +642,36 @@ public class MainFrame extends javax.swing.JFrame {
         this.updateVisiblePdfPage();
     }
 
+    private void replaceDocument(final PDDocument newDocument) throws IOException {
+        if (this.document == newDocument) return;
+        
+        if (this.document != null) {
+            this.document.close();
+        }
+        
+        this.document = newDocument;
+        this.renderer = new PDFRenderer(this.document);
+
+        final SpinnerNumberModel spinnerModel;
+        if (document.getNumberOfPages() == 0) {
+            spinnerModel = new SpinnerNumberModel(0, 0, 0, 1);
+            this.spinnerPage.setEnabled(false);
+            this.spinnerPage.setValue(0);
+            this.labelPageNumber.setText(" / ---");
+        } else {
+            spinnerModel = new SpinnerNumberModel(1, 1, document.getNumberOfPages(), 1);
+            this.spinnerPage.setEnabled(true);
+            this.labelPageNumber.setText(" / " + String.format("%d", document.getNumberOfPages()));
+        }
+        this.spinnerPage.setModel(spinnerModel);
+    }
+    
     private boolean openFile(final File file) {
         this.lastOpenedFile = file;
         try {
-            if (this.document != null) {
-                this.document.close();
-            }
+            final PDDocument openedDocument = Loader.loadPDF(this.lastOpenedFile);
+            this.replaceDocument(openedDocument);
 
-            this.document = Loader.loadPDF(this.lastOpenedFile);
-            this.renderer = new PDFRenderer(this.document);
-
-            final SpinnerNumberModel spinnerModel = new SpinnerNumberModel(1, 1, document.getNumberOfPages(), 1);
-            this.spinnerPage.setModel(spinnerModel);
-            this.spinnerPage.setEnabled(true);
-
-            this.labelPageNumber.setText(" / " + String.format("%d", document.getNumberOfPages()));
             this.documentFile = this.lastOpenedFile;
             this.saveRequired = false;
             this.updateTitle();
@@ -983,6 +1010,8 @@ public class MainFrame extends javax.swing.JFrame {
     private void menuEditMenuSelected(javax.swing.event.MenuEvent evt) {//GEN-FIRST:event_menuEditMenuSelected
         final long selectedImages = this.pageTree.getSelectionPaths() == null ? 0L : Stream.of(this.pageTree.getSelectionPaths()).map(x -> x.getLastPathComponent()).filter(x -> x instanceof PageTreeModel.PageItem).count();
 
+        this.menuReorderPages.setEnabled(this.document != null);
+        
         this.menuEditShowImage.setEnabled(selectedImages == 1);
 
         this.menuEditHidePictureForName.setEnabled(selectedImages > 0);
@@ -1122,6 +1151,23 @@ public class MainFrame extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_menuEditReplaceByFileForImageActionPerformed
 
+    private void menuReorderPagesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuReorderPagesActionPerformed
+        try {
+            final DocumentEditPanel panel = new DocumentEditPanel(this.document);
+            UiUtils.makeOwningDialogResizable(panel);
+            if (JOptionPane.showConfirmDialog(this, panel, "Reorder pages", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION) {
+                final PDDocument newDocument = panel.makeDocument();
+                panel.dispose();
+                this.replaceDocument(newDocument);
+                this.saveRequired = true;
+            }
+        } catch(IOException ex) {
+            JOptionPane.showMessageDialog(this, "Can't open for error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        } finally {
+            this.updateVisiblePdfPage();
+        }
+    }//GEN-LAST:event_menuReorderPagesActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.Box.Filler filler1;
     private javax.swing.JLabel jLabel1;
@@ -1142,6 +1188,7 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JMenu menuHelp;
     private javax.swing.JMenuItem menuHelpAbout;
     private javax.swing.JMenu menuLookAndFeel;
+    private javax.swing.JMenuItem menuReorderPages;
     private javax.swing.JTree pageTree;
     private com.igormaznitsa.pdfimgremover.ScaleStatusIndicator scaleStatusIndicator;
     private javax.swing.JScrollPane scrollPanelTree;

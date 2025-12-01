@@ -236,7 +236,7 @@ final class ScalableImage extends JComponent implements Scalable {
             gfx.setColor(Color.WHITE);
             gfx.fillRect(0, 0, bounds.width, bounds.height);
             gfx.setColor(Color.BLACK);
-            final String text = "No document";
+            final String text = "No page";
             gfx.drawString(text, (bounds.width - gfx.getFontMetrics().stringWidth(text)) / 2, (bounds.height - gfx.getFontMetrics().getMaxAscent()) / 2);
         } else {
             final Dimension size = getPreferredSize();
