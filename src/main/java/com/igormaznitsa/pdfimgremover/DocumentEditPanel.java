@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
@@ -34,8 +35,10 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
+import javax.swing.JTextField;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDDocumentInformation;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.rendering.PDFRenderer;
 
@@ -108,6 +111,11 @@ public class DocumentEditPanel extends javax.swing.JPanel {
 
     }
 
+    private static String getTextOrNull(final JTextField field) {
+        final String text = field.getText().trim();
+        return text.isEmpty() ? null : text;
+    }
+    
     public PDDocument makeDocument() throws IOException {
         Stream.concat(((PdfPageListModel)this.listSourcePages.getModel()).stream(),
                 ((PdfPageListModel) this.listTargetPages.getModel()).stream())
@@ -115,6 +123,13 @@ public class DocumentEditPanel extends javax.swing.JPanel {
         ((PdfPageListModel) this.listTargetPages.getModel()).stream().forEach(x -> {
             this.document.addPage(x.page);
         });
+        
+        final PDDocumentInformation info = this.document.getDocumentInformation();
+        info.setAuthor(getTextOrNull(this.textDocumentAuthor));
+        info.setCreator(getTextOrNull(this.textDocumentCreator));
+        info.setKeywords(getTextOrNull(this.textKeywords));
+        info.setTitle(getTextOrNull(this.textTitle));
+        
         return this.document;
     }
 
@@ -124,15 +139,10 @@ public class DocumentEditPanel extends javax.swing.JPanel {
 
     public static PDDocument cloneDocument(PDDocument sourceDoc, boolean clonePages) throws IOException {
         if (!clonePages) {
-            // Simple clone: just create new document with metadata
             PDDocument clonedDoc = new PDDocument();
-
-            // Copy document information
             if (sourceDoc.getDocumentInformation() != null) {
                 clonedDoc.setDocumentInformation(sourceDoc.getDocumentInformation());
             }
-
-            // Copy document catalog properties
             if (sourceDoc.getDocumentCatalog().getLanguage() != null) {
                 clonedDoc.getDocumentCatalog().setLanguage(
                         sourceDoc.getDocumentCatalog().getLanguage()
@@ -141,17 +151,11 @@ public class DocumentEditPanel extends javax.swing.JPanel {
 
             return clonedDoc;
         } else {
-            // Deep clone: clone all pages with content and resources
             return deepCloneDocument(sourceDoc);
         }
     }
 
-    /**
-     * Performs a deep clone of the entire document including all pages, content
-     * streams, resources, and images.
-     */
-    private static PDDocument deepCloneDocument(PDDocument sourceDoc) throws IOException {
-        // Most reliable method: serialize and deserialize
+    private static PDDocument deepCloneDocument(final PDDocument sourceDoc) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         sourceDoc.setAllSecurityToBeRemoved(true);
         sourceDoc.save(baos);
@@ -205,6 +209,12 @@ public class DocumentEditPanel extends javax.swing.JPanel {
         initComponents();
 
         this.document = cloneDocument(document, true);
+        final PDDocumentInformation info = this.document.getDocumentInformation();
+        this.textDocumentAuthor.setText(Objects.requireNonNullElse(info.getAuthor(), ""));
+        this.textDocumentCreator.setText(Objects.requireNonNullElse(info.getCreator(), ""));
+        this.textTitle.setText(Objects.requireNonNullElse(info.getTitle(), ""));
+        this.textKeywords.setText(Objects.requireNonNullElse(info.getKeywords(), ""));
+        
         this.renderer = new PDFRenderer(this.document);
 
         final PdfPageListModel modelIn = new PdfPageListModel();
@@ -251,6 +261,15 @@ public class DocumentEditPanel extends javax.swing.JPanel {
         buttonPageDown = new javax.swing.JButton();
         jScrollPane2 = new javax.swing.JScrollPane();
         listTargetPages = new javax.swing.JList<>();
+        panelDocumentInfo = new javax.swing.JPanel();
+        jLabel1 = new javax.swing.JLabel();
+        textDocumentAuthor = new javax.swing.JTextField();
+        jLabel2 = new javax.swing.JLabel();
+        textDocumentCreator = new javax.swing.JTextField();
+        jLabel3 = new javax.swing.JLabel();
+        textTitle = new javax.swing.JTextField();
+        jLabel4 = new javax.swing.JLabel();
+        textKeywords = new javax.swing.JTextField();
 
         setLayout(new java.awt.GridBagLayout());
 
@@ -267,7 +286,7 @@ public class DocumentEditPanel extends javax.swing.JPanel {
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridy = 1;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1000.0;
         gridBagConstraints.weighty = 1.0;
@@ -276,6 +295,7 @@ public class DocumentEditPanel extends javax.swing.JPanel {
         panelButtons.setLayout(new java.awt.GridBagLayout());
 
         buttonPageToTarget.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/arrow_right.png"))); // NOI18N
+        buttonPageToTarget.setToolTipText("Move selected pages to the target");
         buttonPageToTarget.addActionListener(this::buttonPageToTargetActionPerformed);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -284,6 +304,7 @@ public class DocumentEditPanel extends javax.swing.JPanel {
         panelButtons.add(buttonPageToTarget, gridBagConstraints);
 
         buttonPageToSource.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/arrow_left.png"))); // NOI18N
+        buttonPageToSource.setToolTipText("Return the selected pages to the source document");
         buttonPageToSource.addActionListener(this::buttonPageToSourceActionPerformed);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -304,6 +325,7 @@ public class DocumentEditPanel extends javax.swing.JPanel {
         panelButtons.add(filler2, gridBagConstraints);
 
         buttonPageUp.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/arrow_up.png"))); // NOI18N
+        buttonPageUp.setToolTipText("Decrease position of selected page in the target");
         buttonPageUp.addActionListener(this::buttonPageUpActionPerformed);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -312,6 +334,7 @@ public class DocumentEditPanel extends javax.swing.JPanel {
         panelButtons.add(buttonPageUp, gridBagConstraints);
 
         buttonPageDown.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/arrow_down.png"))); // NOI18N
+        buttonPageDown.setToolTipText("Increase position of selected page in the target");
         buttonPageDown.addActionListener(this::buttonPageDownActionPerformed);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -321,7 +344,7 @@ public class DocumentEditPanel extends javax.swing.JPanel {
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridy = 1;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(0, 6, 0, 0);
@@ -340,12 +363,85 @@ public class DocumentEditPanel extends javax.swing.JPanel {
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridy = 1;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1000.0;
         gridBagConstraints.weighty = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(0, 6, 0, 0);
         add(jScrollPane2, gridBagConstraints);
+
+        panelDocumentInfo.setLayout(new java.awt.GridBagLayout());
+
+        jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        jLabel1.setText("Author:");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 16, 0, 0);
+        panelDocumentInfo.add(jLabel1, gridBagConstraints);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.weightx = 1000.0;
+        panelDocumentInfo.add(textDocumentAuthor, gridBagConstraints);
+
+        jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        jLabel2.setText("Creator:");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 16, 0, 0);
+        panelDocumentInfo.add(jLabel2, gridBagConstraints);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.weightx = 1000.0;
+        panelDocumentInfo.add(textDocumentCreator, gridBagConstraints);
+
+        jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        jLabel3.setText("Titls:");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 16, 0, 0);
+        panelDocumentInfo.add(jLabel3, gridBagConstraints);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.weightx = 1000.0;
+        panelDocumentInfo.add(textTitle, gridBagConstraints);
+
+        jLabel4.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        jLabel4.setText("Keywords:");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.insets = new java.awt.Insets(0, 16, 0, 0);
+        panelDocumentInfo.add(jLabel4, gridBagConstraints);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.weightx = 1000.0;
+        panelDocumentInfo.add(textKeywords, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridwidth = 3;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        add(panelDocumentInfo, gridBagConstraints);
     }// </editor-fold>//GEN-END:initComponents
 
     private void listSourcePagesValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_listSourcePagesValueChanged
@@ -428,10 +524,19 @@ public class DocumentEditPanel extends javax.swing.JPanel {
     private javax.swing.JButton buttonPageUp;
     private javax.swing.Box.Filler filler1;
     private javax.swing.Box.Filler filler2;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JList<PdfPageItem> listSourcePages;
     private javax.swing.JList<PdfPageItem> listTargetPages;
     private javax.swing.JPanel panelButtons;
+    private javax.swing.JPanel panelDocumentInfo;
+    private javax.swing.JTextField textDocumentAuthor;
+    private javax.swing.JTextField textDocumentCreator;
+    private javax.swing.JTextField textKeywords;
+    private javax.swing.JTextField textTitle;
     // End of variables declaration//GEN-END:variables
 }
