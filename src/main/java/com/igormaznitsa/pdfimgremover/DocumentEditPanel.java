@@ -459,12 +459,16 @@ public class DocumentEditPanel extends javax.swing.JPanel {
         final List<PdfPageItem> selected = this.listSourcePages.getSelectedValuesList();
         ((PdfPageListModel) this.listSourcePages.getModel()).removeAll(selected);
         ((PdfPageListModel) this.listTargetPages.getModel()).add(selected, false);
+        this.listSourcePages.setSelectedIndices(new int[0]);
+        this.listTargetPages.setSelectedIndices(new int[0]);
     }//GEN-LAST:event_buttonPageToTargetActionPerformed
 
     private void buttonPageToSourceActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonPageToSourceActionPerformed
         final List<PdfPageItem> selected = this.listTargetPages.getSelectedValuesList();
         ((PdfPageListModel) this.listTargetPages.getModel()).removeAll(selected);
-        ((PdfPageListModel) this.listSourcePages.getModel()).add(selected, false);
+        ((PdfPageListModel) this.listSourcePages.getModel()).add(selected, true);
+        this.listSourcePages.setSelectedIndices(new int[0]);
+        this.listTargetPages.setSelectedIndices(new int[0]);
     }//GEN-LAST:event_buttonPageToSourceActionPerformed
 
     private void buttonPageUpActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonPageUpActionPerformed
