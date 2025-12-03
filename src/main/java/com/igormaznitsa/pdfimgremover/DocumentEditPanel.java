@@ -16,6 +16,9 @@
 package com.igormaznitsa.pdfimgremover;
 
 import java.awt.Toolkit;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -25,17 +28,22 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 import javax.swing.AbstractListModel;
 import javax.swing.DefaultListModel;
+import javax.swing.DropMode;
 import javax.swing.ImageIcon;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
+import static javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION;
+import javax.swing.TransferHandler;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDDocumentInformation;
@@ -47,15 +55,16 @@ public class DocumentEditPanel extends javax.swing.JPanel {
     private static final class PdfPageListModel extends AbstractListModel<PdfPageItem> {
 
         private final List<PdfPageItem> list = new ArrayList<>();
-
-        public PdfPageListModel() {
-
+        private final boolean sorted;
+        
+        public PdfPageListModel(final boolean sorted) {
+            this.sorted = sorted;
         }
 
         public Stream<PdfPageItem> stream() {
             return this.list.stream();
         }
-        
+
         public boolean moveUp(final int index) {
             if (index <= 0) {
                 return false;
@@ -81,9 +90,9 @@ public class DocumentEditPanel extends javax.swing.JPanel {
             this.fireContentsChanged(this, 0, list.size() - 1);
         }
 
-        public void add(final PdfPageItem page, final boolean sort) {
+        public void add(final PdfPageItem page) {
             this.list.add(page);
-            if (sort) {
+            if (this.sorted) {
                 Collections.sort(this.list);
                 this.fireContentsChanged(this, 0, list.size() - 1);
             } else {
@@ -91,9 +100,9 @@ public class DocumentEditPanel extends javax.swing.JPanel {
             }
         }
 
-        public void add(final Collection<PdfPageItem> pages, final boolean sort) {
+        public void add(final Collection<PdfPageItem> pages) {
             this.list.addAll(pages);
-            if (sort) {
+            if (this.sorted) {
                 Collections.sort(this.list);
             }
             this.fireContentsChanged(this, 0, list.size() - 1);
@@ -109,28 +118,47 @@ public class DocumentEditPanel extends javax.swing.JPanel {
             return this.list.get(index);
         }
 
+        public void remove(int index) {
+            this.list.remove(index);
+            this.fireContentsChanged(this, index, index);
+        }
+
+        public void add(int index, PdfPageItem item) {
+            this.list.add(index, item);
+            if (this.sorted) {
+                Collections.sort(this.list);
+                this.fireContentsChanged(this, index, index);
+            } else {
+                this.fireContentsChanged(this, index, index);
+            }
+        }
+
     }
 
     private static String getTextOrNull(final JTextField field) {
         final String text = field.getText().trim();
         return text.isEmpty() ? null : text;
     }
-    
-    public PDDocument makeDocument() throws IOException {
-        Stream.concat(((PdfPageListModel)this.listSourcePages.getModel()).stream(),
+
+    public Optional<PDDocument> makeDocument() throws IOException {
+        if (this.listTargetPages.getModel().getSize() == 0) {
+            return Optional.empty();
+        }
+        
+        Stream.concat(((PdfPageListModel) this.listSourcePages.getModel()).stream(),
                 ((PdfPageListModel) this.listTargetPages.getModel()).stream())
                 .forEach(x -> this.document.removePage(x.page));
         ((PdfPageListModel) this.listTargetPages.getModel()).stream().forEach(x -> {
             this.document.addPage(x.page);
         });
-        
+
         final PDDocumentInformation info = this.document.getDocumentInformation();
         info.setAuthor(getTextOrNull(this.textDocumentAuthor));
         info.setCreator(getTextOrNull(this.textDocumentCreator));
         info.setKeywords(getTextOrNull(this.textKeywords));
         info.setTitle(getTextOrNull(this.textTitle));
-        
-        return this.document;
+
+        return Optional.of(this.document);
     }
 
     public void dispose() {
@@ -161,7 +189,7 @@ public class DocumentEditPanel extends javax.swing.JPanel {
         sourceDoc.save(baos);
         return Loader.loadPDF(baos.toByteArray());
     }
-    
+
     private static class PdfPageItem implements Comparable<PdfPageItem> {
 
         private final int origIndex;
@@ -214,11 +242,11 @@ public class DocumentEditPanel extends javax.swing.JPanel {
         this.textDocumentCreator.setText(Objects.requireNonNullElse(info.getCreator(), ""));
         this.textTitle.setText(Objects.requireNonNullElse(info.getTitle(), ""));
         this.textKeywords.setText(Objects.requireNonNullElse(info.getKeywords(), ""));
-        
+
         this.renderer = new PDFRenderer(this.document);
 
-        final PdfPageListModel modelIn = new PdfPageListModel();
-        final PdfPageListModel modelOut = new PdfPageListModel();
+        final PdfPageListModel modelIn = new PdfPageListModel(true);
+        final PdfPageListModel modelOut = new PdfPageListModel(false);
 
         final AtomicInteger counter = new AtomicInteger();
         final Set<PdfPageItem> pages = new HashSet<>();
@@ -226,7 +254,7 @@ public class DocumentEditPanel extends javax.swing.JPanel {
             final PdfPageItem item = new PdfPageItem(counter.getAndIncrement(), x);
             pages.add(item);
         });
-        modelIn.add(pages, true);
+        modelIn.add(pages);
 
         this.listSourcePages.setModel(modelIn);
         this.listTargetPages.setModel(modelOut);
@@ -238,6 +266,11 @@ public class DocumentEditPanel extends javax.swing.JPanel {
         this.buttonPageUp.setEnabled(false);
         this.buttonPageToSource.setEnabled(false);
         this.buttonPageToTarget.setEnabled(false);
+
+        this.listTargetPages.setSelectionMode(MULTIPLE_INTERVAL_SELECTION);
+        this.listTargetPages.setDragEnabled(true);
+        this.listTargetPages.setDropMode(DropMode.INSERT);
+        this.listTargetPages.setTransferHandler(new PdfPageListTransferHandler());
     }
 
     /**
@@ -458,7 +491,7 @@ public class DocumentEditPanel extends javax.swing.JPanel {
     private void buttonPageToTargetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonPageToTargetActionPerformed
         final List<PdfPageItem> selected = this.listSourcePages.getSelectedValuesList();
         ((PdfPageListModel) this.listSourcePages.getModel()).removeAll(selected);
-        ((PdfPageListModel) this.listTargetPages.getModel()).add(selected, false);
+        ((PdfPageListModel) this.listTargetPages.getModel()).add(selected);
         this.listSourcePages.setSelectedIndices(new int[0]);
         this.listTargetPages.setSelectedIndices(new int[0]);
     }//GEN-LAST:event_buttonPageToTargetActionPerformed
@@ -466,7 +499,7 @@ public class DocumentEditPanel extends javax.swing.JPanel {
     private void buttonPageToSourceActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonPageToSourceActionPerformed
         final List<PdfPageItem> selected = this.listTargetPages.getSelectedValuesList();
         ((PdfPageListModel) this.listTargetPages.getModel()).removeAll(selected);
-        ((PdfPageListModel) this.listSourcePages.getModel()).add(selected, true);
+        ((PdfPageListModel) this.listSourcePages.getModel()).add(selected);
         this.listSourcePages.setSelectedIndices(new int[0]);
         this.listTargetPages.setSelectedIndices(new int[0]);
     }//GEN-LAST:event_buttonPageToSourceActionPerformed
@@ -518,6 +551,112 @@ public class DocumentEditPanel extends javax.swing.JPanel {
             JOptionPane.showMessageDialog(this, scroll, item.toString(), JOptionPane.PLAIN_MESSAGE);
         } catch (IOException ex) {
             JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    static final class PdfPageListTransferHandler extends TransferHandler {
+
+        private static final DataFlavor PDF_PAGE_FLAVOR
+                = new DataFlavor(List.class, "PdfPageItemList");
+
+        private int[] draggedIndices = null;
+        private int dropIndex = -1;
+
+        @Override
+        public int getSourceActions(JComponent c) {
+            return MOVE;
+        }
+
+        @Override
+        protected Transferable createTransferable(JComponent c) {
+            JList<PdfPageItem> list = (JList<PdfPageItem>) c;
+            draggedIndices = list.getSelectedIndices();
+
+            List<PdfPageItem> items = new ArrayList<>();
+            for (int index : draggedIndices) {
+                items.add(list.getModel().getElementAt(index));
+            }
+
+            return new Transferable() {
+                @Override
+                public DataFlavor[] getTransferDataFlavors() {
+                    return new DataFlavor[]{PDF_PAGE_FLAVOR};
+                }
+
+                @Override
+                public boolean isDataFlavorSupported(DataFlavor flavor) {
+                    return PDF_PAGE_FLAVOR.equals(flavor);
+                }
+
+                @Override
+                public Object getTransferData(DataFlavor flavor)
+                        throws UnsupportedFlavorException, IOException {
+                    if (!isDataFlavorSupported(flavor)) {
+                        throw new UnsupportedFlavorException(flavor);
+                    }
+                    return items;
+                }
+            };
+        }
+
+        @Override
+        public boolean canImport(TransferSupport support) {
+            if (!support.isDrop() || !support.isDataFlavorSupported(PDF_PAGE_FLAVOR)) {
+                return false;
+            }
+
+            support.setShowDropLocation(true);
+            return true;
+        }
+
+        @Override
+        public boolean importData(TransferSupport support) {
+            if (!canImport(support)) {
+                return false;
+            }
+
+            JList.DropLocation dl = (JList.DropLocation) support.getDropLocation();
+            dropIndex = dl.getIndex();
+
+            try {
+                @SuppressWarnings("unchecked")
+                List<PdfPageItem> items
+                        = (List<PdfPageItem>) support.getTransferable()
+                                .getTransferData(PDF_PAGE_FLAVOR);
+
+                JList<PdfPageItem> list = (JList<PdfPageItem>) support.getComponent();
+                PdfPageListModel model
+                        = (PdfPageListModel) list.getModel();
+
+                int adjustedDropIndex = dropIndex;
+                for (int draggedIndex : draggedIndices) {
+                    if (draggedIndex < dropIndex) {
+                        adjustedDropIndex--;
+                    }
+                }
+
+                for (int i = draggedIndices.length - 1; i >= 0; i--) {
+                    model.remove(draggedIndices[i]);
+                }
+
+                for (int i = 0; i < items.size(); i++) {
+                    model.add(adjustedDropIndex + i, items.get(i));
+                }
+
+                list.setSelectionInterval(adjustedDropIndex,
+                        adjustedDropIndex + items.size() - 1);
+
+                return true;
+            } catch (Exception e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
+
+        @Override
+        protected void exportDone(JComponent c, Transferable data, int action) {
+            draggedIndices = null;
+            dropIndex = -1;
         }
     }
 

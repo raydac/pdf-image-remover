@@ -1156,10 +1156,15 @@ public class MainFrame extends javax.swing.JFrame {
             final DocumentEditPanel panel = new DocumentEditPanel(this.document);
             UiUtils.makeOwningDialogResizable(panel);
             if (JOptionPane.showConfirmDialog(this, panel, "Reorder pages", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION) {
-                final PDDocument newDocument = panel.makeDocument();
+                final PDDocument newDocument = panel.makeDocument().orElse(null);
                 panel.dispose();
-                this.replaceDocument(newDocument);
-                this.saveRequired = true;
+
+                if (newDocument == null) {
+                    JOptionPane.showMessageDialog(this, "No pages in new document", "Warning", JOptionPane.WARNING_MESSAGE);
+                } else {
+                    this.replaceDocument(newDocument);
+                    this.saveRequired = true;
+                }
             }
         } catch(IOException ex) {
             JOptionPane.showMessageDialog(this, "Can't open for error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
