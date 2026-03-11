@@ -3,20 +3,37 @@
 [![Java 9+](https://img.shields.io/badge/java-9%2b-green.svg)](https://bell-sw.com/pages/downloads/#/java-11-lts)   
 [![Arthur's acres sanctuary donation](docs/arthur_sanctuary_banner.png)](https://www.arthursacresanimalsanctuary.org/donate)
 
-# What is it?
+# PDF Image Tool
 
-Small GUI utility, it allows manipulate images in PDF documents:
- - hide selected ones (for one page or for all pages) by its name or its image data
- - extract selected image from document and save it as an image file
- - replace selected images by an image loaded from a file (for one page or for all pages), detection of replacement can be either through the image name or the image data (slow)
+Small GUI utility for manipulating images and pages in PDF documents.
+
+## Features
+
+- **Hide images**  
+  Hide selected images on a single page or across the entire document.  
+  Images can be identified by **name** or by **image data**.
+
+- **Extract images**  
+  Save any selected image from the PDF as a separate image file.
+
+- **Replace images**  
+  Replace selected images with an image loaded from a file.  
+  Can be applied to a single page or all pages.  
+  Matching can be done by **image name** (fast) or **image data** (slower).
+
+- **Page operations**
+    - **Reorder pages**
+    - **Remove pages**
+
+Useful for removing unwanted graphics, replacing logos, extracting embedded images, or reorganizing pages in PDF files.
 
 ![screenshot](docs/screenshot.png)   
 
 # How to start?
 
-The utility is written in pure Java and requires pre-installed JDK 9+ for its work. If you have not JDK on your machine, you can download it from [the page](https://bell-sw.com/pages/downloads/#jdk-21-lts).
+The utility is written in pure Java and requires pre-installed JDK 9+ for its work. If Java is not installed on your system, you can download it from [the page](https://bell-sw.com/pages/downloads/#jdk-21-lts).
 
-You can download starter for your OS but also you can download juat pure JAR archive.
+You can download starter for your OS but also you can download just pure JAR archive.
 
 Pre-built starters for different OS:
  - [for Windows](https://github.com/raydac/pdf-image-remover/releases/download/1.1.1/pdf-image-remover-1.1.1.exe)
